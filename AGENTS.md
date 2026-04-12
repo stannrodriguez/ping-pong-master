@@ -7,5 +7,6 @@
 - **Build**: `npm run build` runs `tsc -b && vite build`; output goes to `dist/`
 - **Lint**: `npm run lint` runs ESLint on `.ts`/`.tsx` files
 - **No backend or database required** — this is a fully client-side SPA. Multiplayer uses PeerJS (WebRTC) for peer-to-peer connections.
-- **Routing**: React Router v7 with `BrowserRouter`. Routes: `/` (home), `/play` (AI game), `/lab` (Spin Lab), `/multiplayer` (peer-to-peer play).
-- **Key directories**: `src/engine/` (physics, AI, types), `src/store/` (Zustand), `src/components/3d/` (R3F components), `src/components/ui/` (HUD, spin selector), `src/pages/` (route pages), `src/multiplayer/` (PeerJS wrapper).
+- **Routing**: React Router v7 with `BrowserRouter`. Routes: `/` (home), `/play` (3D game), `/play2d` (2D game), `/lab` (Spin Lab), `/multiplayer` (peer-to-peer play).
+- **Key directories**: `src/engine/` (physics, AI, types — includes both `physics.ts` for 3D and `physics2d.ts` for 2D), `src/store/` (Zustand), `src/components/3d/` (R3F components), `src/components/ui/` (HUD, spin selector), `src/pages/` (route pages), `src/multiplayer/` (PeerJS wrapper).
+- **Two game modes**: 2D uses HTML Canvas (lightweight, `Play2D.tsx`), 3D uses React Three Fiber (heavier, `Play.tsx`). The 2D mode has its own self-contained physics loop and doesn't share state with the Zustand store.
