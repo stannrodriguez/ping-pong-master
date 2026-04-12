@@ -18,13 +18,13 @@ function GameLogic() {
     scorePoint, setPhase,
   } = useGameStore();
 
-  const mouseX = useRef(0);
+  const aimX = useRef(0);
   const aiTargetX = useRef(0);
   const frameCount = useRef(0);
 
   const handlePointerMove = useCallback((e: PointerEvent) => {
     const normalized = (e.clientX / window.innerWidth) * 2 - 1;
-    mouseX.current = normalized * (TABLE.width / 2) * 0.9;
+    aimX.current = normalized * (TABLE.width / 2) * 0.9;
   }, []);
 
   const handleClick = useCallback((e: MouseEvent) => {
@@ -55,7 +55,13 @@ function GameLogic() {
   }, [handlePointerMove, handleClick]);
 
   useFrame(() => {
-    setPlayerPaddleX(THREE.MathUtils.lerp(player.paddle.position.x, mouseX.current, 0.15));
+    // Paddle auto-tracks ball when ball is in play heading toward player
+    if (phase === 'playing' && ball.isInPlay && ball.lastHitBy === 'opponent') {
+      const targetX = ball.position.x;
+      setPlayerPaddleX(THREE.MathUtils.lerp(player.paddle.position.x, targetX, 0.2));
+    } else {
+      setPlayerPaddleX(THREE.MathUtils.lerp(player.paddle.position.x, aimX.current, 0.15));
+    }
 
     if (phase === 'serving' && !isPlayerServing) {
       frameCount.current++;
@@ -73,7 +79,7 @@ function GameLogic() {
     const newBall = stepBall(ball, 1 / 60);
     setBall(newBall);
 
-    // Player auto-hit: when ball enters player's zone and was hit by opponent
+    // Player auto-hit: ball enters player zone, aim direction determines return angle
     const playerZ = TABLE.length / 2 - 1;
     if (
       newBall.isInPlay &&
@@ -85,7 +91,7 @@ function GameLogic() {
       const dist = Math.abs(newBall.position.x - paddleX);
       if (dist < 1.2) {
         const state = useGameStore.getState();
-        const hit = hitBall(newBall, state.selectedSpin, paddleX, true);
+        const hit = hitBall(newBall, state.selectedSpin, aimX.current, true);
         setBall(hit);
       }
     }

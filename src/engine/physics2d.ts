@@ -30,6 +30,7 @@ export interface Game2DState {
   selectedSpin: SpinType;
   pointMessage: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  aimX: number;
 }
 
 export const TABLE_2D = {
@@ -79,6 +80,7 @@ export function createGame2D(difficulty: 'beginner' | 'intermediate' | 'advanced
     selectedSpin: 'flat',
     pointMessage: '',
     difficulty,
+    aimX: TABLE_2D.width / 2,
   };
 }
 
@@ -87,13 +89,15 @@ export function serve2D(state: Game2DState): Game2DState {
   const isPlayer = state.isPlayerServing;
   const baseSpeed = 4;
 
-  const vx = (Math.random() - 0.5) * 1.5;
+  const paddleCenterX = state.player.x + state.player.width / 2;
+  const aimOffset = (state.aimX - paddleCenterX) / (TABLE_2D.width / 2);
+  const vx = isPlayer ? aimOffset * 3 : (Math.random() - 0.5) * 2;
   const vy = isPlayer ? -baseSpeed : baseSpeed;
 
   return {
     ...state,
     ball: {
-      x: isPlayer ? state.player.x + state.player.width / 2 : state.opponent.x + state.opponent.width / 2,
+      x: isPlayer ? paddleCenterX : state.opponent.x + state.opponent.width / 2,
       y: isPlayer ? state.player.y - 20 : state.opponent.y + state.opponent.height + 20,
       vx,
       vy,
@@ -107,12 +111,15 @@ export function serve2D(state: Game2DState): Game2DState {
   };
 }
 
-export function hitBall2D(ball: Ball2D, paddleCenterX: number, paddleWidth: number, isPlayer: boolean, selectedSpin: SpinType, difficulty: string): Ball2D {
+function hitBall2DWithAim(ball: Ball2D, aimX: number, isPlayer: boolean, selectedSpin: SpinType, difficulty: string): Ball2D {
   const spin = isPlayer ? selectedSpin : getAISpin2D(difficulty);
-  const offset = (ball.x - paddleCenterX) / (paddleWidth / 2);
   const baseSpeed = 4.5;
 
-  let vx = offset * 3.5;
+  const aimOffset = isPlayer
+    ? (aimX - ball.x) / (TABLE_2D.width / 2)
+    : (Math.random() - 0.5) * 1.5;
+
+  let vx = aimOffset * 4;
   let vy = isPlayer ? -baseSpeed : baseSpeed;
 
   if (spin === 'sidespin-left') vx -= 1.2;
@@ -143,67 +150,53 @@ export function step2D(state: Game2DState): Game2DState {
   const { spin, lastHit } = state.ball;
   let { x, y, vx, vy, trail, passedNet } = state.ball;
 
-  // Spin effects (continuous curve)
+  // Spin curve effects
   if (spin === 'sidespin-left') vx -= 0.04;
   if (spin === 'sidespin-right') vx += 0.04;
-  if (spin === 'topspin') {
-    vy += (vy < 0 ? -0.015 : 0.015);
-  }
-  if (spin === 'backspin') {
-    vy -= (vy < 0 ? 0.01 : -0.01);
-  }
+  if (spin === 'topspin') vy += (vy < 0 ? -0.015 : 0.015);
+  if (spin === 'backspin') vy -= (vy < 0 ? 0.01 : -0.01);
 
   x += vx;
   y += vy;
 
   trail = [...trail.slice(-25), { x, y }];
 
-  // Side walls — bounce
+  // Side walls
   if (x < TABLE_2D.ballR) { x = TABLE_2D.ballR; vx = Math.abs(vx); }
   if (x > TABLE_2D.width - TABLE_2D.ballR) { x = TABLE_2D.width - TABLE_2D.ballR; vx = -Math.abs(vx); }
 
-  // Track net crossing (ball must cross net to be valid)
+  // Track net crossing
   if (!passedNet) {
-    const goingUp = vy < 0;
-    const goingDown = vy > 0;
-    if ((goingUp && y < TABLE_2D.netY) || (goingDown && y > TABLE_2D.netY)) {
+    if ((vy < 0 && y < TABLE_2D.netY) || (vy > 0 && y > TABLE_2D.netY)) {
       passedNet = true;
     }
   }
 
-  // Player paddle hit — automatic when ball reaches paddle zone
+  // Player paddle auto-intercept
   const pp = state.player;
   if (vy > 0 && y >= pp.y - 4 && y <= pp.y + pp.height + 4) {
     if (x >= pp.x - 8 && x <= pp.x + pp.width + 8 && lastHit === 'opponent') {
-      const newBall = hitBall2D(
+      const newBall = hitBall2DWithAim(
         { x, y, vx, vy, spin, trail, inPlay: true, lastHit, passedNet },
-        pp.x + pp.width / 2,
-        pp.width,
-        true,
-        state.selectedSpin,
-        state.difficulty,
+        state.aimX, true, state.selectedSpin, state.difficulty,
       );
       return { ...state, ball: { ...newBall, x, y: pp.y - 6, trail } };
     }
   }
 
-  // Opponent paddle hit — automatic
+  // Opponent paddle auto-intercept
   const op = state.opponent;
   if (vy < 0 && y <= op.y + op.height + 4 && y >= op.y - 4) {
     if (x >= op.x - 8 && x <= op.x + op.width + 8 && lastHit === 'player') {
-      const newBall = hitBall2D(
+      const newBall = hitBall2DWithAim(
         { x, y, vx, vy, spin, trail, inPlay: true, lastHit, passedNet },
-        op.x + op.width / 2,
-        op.width,
-        false,
-        state.selectedSpin,
-        state.difficulty,
+        TABLE_2D.width / 2, false, state.selectedSpin, state.difficulty,
       );
       return { ...state, ball: { ...newBall, x, y: op.y + op.height + 6, trail } };
     }
   }
 
-  // Out bottom — player missed, opponent scores
+  // Out bottom
   if (y > TABLE_2D.height + 20) {
     const spinLabel = SPIN_CONFIGS[spin].label;
     return checkGameOver({
@@ -217,7 +210,7 @@ export function step2D(state: Game2DState): Game2DState {
     });
   }
 
-  // Out top — opponent missed, player scores
+  // Out top
   if (y < -20) {
     const spinLabel = SPIN_CONFIGS[spin].label;
     return checkGameOver({
@@ -231,7 +224,7 @@ export function step2D(state: Game2DState): Game2DState {
     });
   }
 
-  // Out left/right wide — last hitter loses
+  // Out wide
   if (x < -30 || x > TABLE_2D.width + 30) {
     const spinLabel = SPIN_CONFIGS[spin].label;
     if (lastHit === 'player') {
@@ -253,14 +246,19 @@ export function step2D(state: Game2DState): Game2DState {
     }
   }
 
-  // AI tracking
+  // AI paddle tracking
   const dcfg = DIFFICULTY[state.difficulty];
   const aiTargetX = x - state.opponent.width / 2 + (Math.random() - 0.5) * (1 - dcfg.accuracy) * 60;
   const newOpX = state.opponent.x + (aiTargetX - state.opponent.x) * dcfg.tracking;
 
+  // Player paddle auto-tracks ball X
+  const playerTargetX = Math.max(0, Math.min(TABLE_2D.width - TABLE_2D.paddleW, x - pp.width / 2));
+  const newPlayerX = pp.x + (playerTargetX - pp.x) * 0.25;
+
   return {
     ...state,
     ball: { x, y, vx, vy, spin, trail, inPlay: true, lastHit, passedNet },
+    player: { ...pp, x: newPlayerX },
     opponent: { ...state.opponent, x: Math.max(0, Math.min(TABLE_2D.width - TABLE_2D.paddleW, newOpX)) },
   };
 }

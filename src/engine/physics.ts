@@ -84,13 +84,13 @@ export function serveBall(ball: BallState, spinType: SpinType, isPlayer: boolean
 export function hitBall(
   ball: BallState,
   spinType: SpinType,
-  paddleX: number,
+  aimX: number,
   isPlayer: boolean,
 ): BallState {
   const cfg = SPIN_CONFIGS[spinType];
   const dir = isPlayer ? 1 : -1;
 
-  const offsetX = (ball.position.x - paddleX);
+  const aimOffset = aimX - ball.position.x;
   const speed = GAME.returnSpeed + Math.random() * 1.5;
 
   let vy = 2.0;
@@ -99,7 +99,7 @@ export function hitBall(
 
   return {
     ...ball,
-    velocity: vec3(offsetX * 2.5, vy, -dir * speed),
+    velocity: vec3(aimOffset * 1.8, vy, -dir * speed),
     spin: { ...cfg.rpm },
     spinType,
     lastHitBy: isPlayer ? 'player' : 'opponent',

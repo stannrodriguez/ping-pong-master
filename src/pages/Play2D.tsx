@@ -11,7 +11,7 @@ const SPIN_KEYS: Record<string, SpinType> = { '1': 'topspin', '2': 'backspin', '
 export function Play2D() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<Game2DState>(createGame2D('beginner'));
-  const mouseXRef = useRef(TABLE_2D.width / 2);
+  const aimXRef = useRef(TABLE_2D.width / 2);
   const animRef = useRef(0);
 
   const [searchParams] = useSearchParams();
@@ -63,7 +63,8 @@ export function Play2D() {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const scaleX = TABLE_2D.width / rect.width;
-    mouseXRef.current = (e.clientX - rect.left) * scaleX;
+    aimXRef.current = (e.clientX - rect.left) * scaleX;
+    stateRef.current.aimX = aimXRef.current;
   }, []);
 
   // Game loop
@@ -72,10 +73,6 @@ export function Play2D() {
 
     const loop = () => {
       const s = stateRef.current;
-
-      // Move player paddle
-      const targetX = mouseXRef.current - s.player.width / 2;
-      s.player.x += (Math.max(0, Math.min(TABLE_2D.width - TABLE_2D.paddleW, targetX)) - s.player.x) * 0.2;
 
       // AI serve
       if (s.phase === 'serving' && !s.isPlayerServing) {
@@ -93,7 +90,7 @@ export function Play2D() {
         stateRef.current = step2D(s);
       }
 
-      // Sync React state (throttled)
+      // Sync React state
       const cur = stateRef.current;
       if (cur.phase !== phase) setPhase(cur.phase);
       if (cur.playerScore !== scores.player || cur.opponentScore !== scores.opponent) {
@@ -120,7 +117,7 @@ export function Play2D() {
     const W = TABLE_2D.width;
     const H = TABLE_2D.height;
 
-    // Table background
+    // Table
     ctx.fillStyle = '#1a6b3c';
     ctx.fillRect(0, 0, W, H);
 
@@ -129,7 +126,7 @@ export function Play2D() {
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, W - 2, H - 2);
 
-    // Center line (net)
+    // Net
     ctx.strokeStyle = 'rgba(255,255,255,0.8)';
     ctx.lineWidth = 2;
     ctx.setLineDash([8, 4]);
@@ -138,10 +135,39 @@ export function Play2D() {
     ctx.lineTo(W, TABLE_2D.netY);
     ctx.stroke();
     ctx.setLineDash([]);
-
-    // Net solid bar
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.fillRect(0, TABLE_2D.netY - 1, W, 3);
+
+    // Aim line — shows where your return will go
+    if (s.phase === 'playing' || s.phase === 'serving') {
+      const playerPaddleCenterX = s.player.x + s.player.width / 2;
+      const playerPaddleY = s.player.y;
+      const aimX = aimXRef.current;
+
+      ctx.save();
+      ctx.setLineDash([4, 6]);
+      ctx.strokeStyle = SPIN_CONFIGS[s.selectedSpin].color;
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(playerPaddleCenterX, playerPaddleY);
+      ctx.lineTo(aimX, 20);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Aim crosshair at target
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.arc(aimX, 20, 6, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(aimX - 10, 20);
+      ctx.lineTo(aimX + 10, 20);
+      ctx.moveTo(aimX, 10);
+      ctx.lineTo(aimX, 30);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // Trail
     if (s.ball.trail.length > 1) {
@@ -150,7 +176,7 @@ export function Play2D() {
         const alpha = i / s.ball.trail.length;
         ctx.strokeStyle = spinColor;
         ctx.globalAlpha = alpha * 0.6;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(s.ball.trail[i - 1].x, s.ball.trail[i - 1].y);
         ctx.lineTo(s.ball.trail[i].x, s.ball.trail[i].y);
@@ -178,19 +204,19 @@ export function Play2D() {
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Spin direction indicator on ball
+      // Spin arrow
       if (s.ball.inPlay) {
         drawSpinArrow(ctx, s.ball.x, s.ball.y, s.ball.spin);
       }
     }
 
     // Paddles
-    drawPaddle(ctx, s.player, s.selectedSpin, true);
-    drawPaddle(ctx, s.opponent, 'flat', false);
+    drawPaddle(ctx, s.player, s.selectedSpin);
+    drawPaddle(ctx, s.opponent, 'flat');
 
-    // Spin effect label (floating near ball during play)
+    // Spin label near ball
     if (s.ball.inPlay && s.ball.spin !== 'flat') {
-      ctx.font = '11px system-ui';
+      ctx.font = 'bold 11px system-ui';
       ctx.fillStyle = SPIN_CONFIGS[s.ball.spin].color;
       ctx.textAlign = 'center';
       ctx.fillText(SPIN_CONFIGS[s.ball.spin].icon + ' ' + SPIN_CONFIGS[s.ball.spin].label, s.ball.x, s.ball.y - 16);
@@ -206,11 +232,6 @@ export function Play2D() {
     if (spin === 'topspin') {
       ctx.beginPath();
       ctx.arc(x, y, r, -Math.PI * 0.7, Math.PI * 0.3);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x + r * 0.85, y + r * 0.5);
-      ctx.lineTo(x + r * 0.5, y + r * 0.9);
-      ctx.lineTo(x + r * 1.1, y + r * 0.8);
       ctx.stroke();
     } else if (spin === 'backspin') {
       ctx.beginPath();
@@ -236,18 +257,15 @@ export function Play2D() {
     ctx.restore();
   }
 
-  function drawPaddle(ctx: CanvasRenderingContext2D, p: { x: number; y: number; width: number; height: number }, spin: SpinType, isPlayer: boolean) {
+  function drawPaddle(ctx: CanvasRenderingContext2D, p: { x: number; y: number; width: number; height: number }, spin: SpinType) {
     const color = SPIN_CONFIGS[spin].color;
 
-    // Shadow
     ctx.fillStyle = 'rgba(0,0,0,0.2)';
     ctx.fillRect(p.x + 2, p.y + 2, p.width, p.height);
 
-    // Paddle body
-    ctx.fillStyle = isPlayer ? '#cc2222' : '#cc2222';
+    ctx.fillStyle = '#cc2222';
     ctx.fillRect(p.x, p.y, p.width, p.height);
 
-    // Glow border
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.strokeRect(p.x - 1, p.y - 1, p.width + 2, p.height + 2);
@@ -269,7 +287,12 @@ export function Play2D() {
           </span>
           {phase === 'serving' && (
             <span className="text-xs text-yellow-400 mt-0.5">
-              {stateRef.current.isPlayerServing ? 'Click to serve!' : 'AI serving...'}
+              {stateRef.current.isPlayerServing ? 'Aim with mouse, click to serve!' : 'AI serving...'}
+            </span>
+          )}
+          {phase === 'playing' && (
+            <span className="text-xs mt-0.5 font-medium" style={{ color: currentSpin.color }}>
+              {currentSpin.icon} Move mouse to aim returns
             </span>
           )}
         </div>
@@ -381,7 +404,7 @@ export function Play2D() {
           })}
         </div>
 
-        <p className="text-xs text-gray-600">Keys 1-5 to select spin • Mouse to aim</p>
+        <p className="text-xs text-gray-600">Mouse aims returns • Click to serve • Keys 1-5 for spin</p>
       </div>
 
       {/* Back button */}
