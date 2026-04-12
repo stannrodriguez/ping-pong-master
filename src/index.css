@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --color-pong-green: #1a6b3c;
+  --color-pong-dark: #0a1628;
+  --color-accent: #00e5ff;
+  --color-topspin: #ff4444;
+  --color-backspin: #4488ff;
+  --color-sidespin: #ffaa00;
+  --color-flat: #aaaaaa;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--color-pong-dark);
+  color: white;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.6); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes spin-indicator {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
