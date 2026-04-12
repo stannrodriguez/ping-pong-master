@@ -1,37 +1,31 @@
 export function GameEnvironment() {
   return (
     <group>
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={0.6} />
       <directionalLight
-        position={[5, 10, 5]}
-        intensity={1}
+        position={[5, 8, 5]}
+        intensity={0.9}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-far={50}
-        shadow-camera-left={-10}
-        shadow-camera-right={10}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
+        shadow-mapSize-width={512}
+        shadow-mapSize-height={512}
+        shadow-camera-far={20}
+        shadow-camera-left={-5}
+        shadow-camera-right={5}
+        shadow-camera-top={5}
+        shadow-camera-bottom={-5}
       />
-      <pointLight position={[0, 4, 0]} intensity={0.6} color="#fff5e6" />
-      <pointLight position={[-3, 3, -3]} intensity={0.3} color="#aaccff" />
-      <pointLight position={[3, 3, 3]} intensity={0.3} color="#ffaacc" />
+      <pointLight position={[0, 4, 0]} intensity={0.4} color="#fff5e6" />
 
       {/* Back wall */}
-      <mesh position={[0, 4, -8]} receiveShadow>
+      <mesh position={[0, 4, -8]}>
         <planeGeometry args={[20, 10]} />
-        <meshStandardMaterial color="#0f1b33" roughness={0.9} />
+        <meshBasicMaterial color="#0f1b33" />
       </mesh>
 
-      {/* Side walls */}
-      <mesh position={[-8, 4, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[20, 10]} />
-        <meshStandardMaterial color="#0f1b33" roughness={0.9} />
-      </mesh>
-      <mesh position={[8, 4, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[20, 10]} />
-        <meshStandardMaterial color="#0f1b33" roughness={0.9} />
+      {/* Floor */}
+      <mesh position={[0, -0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[20, 20]} />
+        <meshBasicMaterial color="#1a1a2e" />
       </mesh>
     </group>
   );

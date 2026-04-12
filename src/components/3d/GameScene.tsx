@@ -126,8 +126,11 @@ export function GameScene() {
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 4, 7], fov: 50, near: 0.1, far: 100 }}
+      camera={{ position: [0, 4, 7], fov: 50, near: 0.1, far: 50 }}
+      dpr={[1, 1.5]}
+      performance={{ min: 0.5 }}
       style={{ width: '100%', height: '100%' }}
+      gl={{ antialias: false, powerPreference: 'high-performance' }}
     >
       <GameEnvironment />
       <PingPongTable />
