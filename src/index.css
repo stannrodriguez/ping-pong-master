@@ -34,15 +34,6 @@ html, body, #root {
   animation: fadeIn 0.4s ease-out;
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.6); }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
 @keyframes spin-indicator {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
