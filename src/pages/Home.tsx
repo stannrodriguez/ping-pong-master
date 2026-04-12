@@ -113,7 +113,7 @@ export function Home() {
       </div>
 
       <p className="text-xs text-gray-600 mt-8 fade-in">
-        Move mouse to aim • Click to hit • Number keys 1-5 to select spin
+        Move mouse to aim • Click to serve • Returns are automatic • Keys 1-5 to select spin
       </p>
     </div>
   );

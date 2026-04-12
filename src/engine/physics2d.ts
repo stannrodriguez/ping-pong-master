@@ -9,7 +9,7 @@ export interface Ball2D {
   trail: { x: number; y: number }[];
   inPlay: boolean;
   lastHit: 'player' | 'opponent' | null;
-  bounced: boolean;
+  passedNet: boolean;
 }
 
 export interface Paddle2D {
@@ -36,7 +36,7 @@ export const TABLE_2D = {
   width: 400,
   height: 600,
   netY: 300,
-  paddleW: 60,
+  paddleW: 80,
   paddleH: 10,
   ballR: 6,
 } as const;
@@ -58,7 +58,7 @@ export function createGame2D(difficulty: 'beginner' | 'intermediate' | 'advanced
       trail: [],
       inPlay: false,
       lastHit: null,
-      bounced: false,
+      passedNet: false,
     },
     player: {
       x: TABLE_2D.width / 2 - TABLE_2D.paddleW / 2,
@@ -87,7 +87,7 @@ export function serve2D(state: Game2DState): Game2DState {
   const isPlayer = state.isPlayerServing;
   const baseSpeed = 4;
 
-  const vx = (Math.random() - 0.5) * 2;
+  const vx = (Math.random() - 0.5) * 1.5;
   const vy = isPlayer ? -baseSpeed : baseSpeed;
 
   return {
@@ -101,33 +101,33 @@ export function serve2D(state: Game2DState): Game2DState {
       trail: [],
       inPlay: true,
       lastHit: isPlayer ? 'player' : 'opponent',
-      bounced: false,
+      passedNet: false,
     },
     phase: 'playing',
   };
 }
 
-export function hitBall2D(state: Game2DState, paddleX: number, paddleCenterX: number, isPlayer: boolean): Ball2D {
-  const spin = isPlayer ? state.selectedSpin : getAISpin2D(state.difficulty);
-  const offset = (state.ball.x - paddleCenterX) / (TABLE_2D.paddleW / 2);
+export function hitBall2D(ball: Ball2D, paddleCenterX: number, paddleWidth: number, isPlayer: boolean, selectedSpin: SpinType, difficulty: string): Ball2D {
+  const spin = isPlayer ? selectedSpin : getAISpin2D(difficulty);
+  const offset = (ball.x - paddleCenterX) / (paddleWidth / 2);
   const baseSpeed = 4.5;
 
-  let vx = offset * 3;
+  let vx = offset * 3.5;
   let vy = isPlayer ? -baseSpeed : baseSpeed;
 
-  if (spin === 'sidespin-left') vx -= 1.5;
-  if (spin === 'sidespin-right') vx += 1.5;
-  if (spin === 'topspin') vy *= 1.3;
+  if (spin === 'sidespin-left') vx -= 1.2;
+  if (spin === 'sidespin-right') vx += 1.2;
+  if (spin === 'topspin') vy *= 1.25;
   if (spin === 'backspin') vy *= 0.7;
 
   return {
-    ...state.ball,
+    ...ball,
     vx,
     vy,
     spin,
     lastHit: isPlayer ? 'player' : 'opponent',
     trail: [],
-    bounced: false,
+    passedNet: false,
   };
 }
 
@@ -140,14 +140,18 @@ function getAISpin2D(difficulty: string): SpinType {
 export function step2D(state: Game2DState): Game2DState {
   if (state.phase !== 'playing' || !state.ball.inPlay) return state;
 
-  const { spin, lastHit, bounced } = state.ball;
-  let { x, y, vx, vy, trail } = state.ball;
+  const { spin, lastHit } = state.ball;
+  let { x, y, vx, vy, trail, passedNet } = state.ball;
 
-  // Spin effects (applied continuously for visual curve)
+  // Spin effects (continuous curve)
   if (spin === 'sidespin-left') vx -= 0.04;
   if (spin === 'sidespin-right') vx += 0.04;
-  if (spin === 'topspin') vy += (vy < 0 ? -0.02 : 0.02);
-  if (spin === 'backspin') vy -= (vy < 0 ? 0.015 : -0.015);
+  if (spin === 'topspin') {
+    vy += (vy < 0 ? -0.015 : 0.015);
+  }
+  if (spin === 'backspin') {
+    vy -= (vy < 0 ? 0.01 : -0.01);
+  }
 
   x += vx;
   y += vy;
@@ -158,58 +162,95 @@ export function step2D(state: Game2DState): Game2DState {
   if (x < TABLE_2D.ballR) { x = TABLE_2D.ballR; vx = Math.abs(vx); }
   if (x > TABLE_2D.width - TABLE_2D.ballR) { x = TABLE_2D.width - TABLE_2D.ballR; vx = -Math.abs(vx); }
 
-  // Net collision
-  if (Math.abs(y - TABLE_2D.netY) < 4 && !bounced) {
-    const netResult = { ...state };
-    const spinLabel = SPIN_CONFIGS[spin].label;
-    if (lastHit === 'player') {
-      netResult.opponentScore++;
-      netResult.pointMessage = `Net! Your ${spinLabel} hit the net`;
-    } else {
-      netResult.playerScore++;
-      netResult.pointMessage = `Net! AI's ${spinLabel} hit the net`;
+  // Track net crossing (ball must cross net to be valid)
+  if (!passedNet) {
+    const goingUp = vy < 0;
+    const goingDown = vy > 0;
+    if ((goingUp && y < TABLE_2D.netY) || (goingDown && y > TABLE_2D.netY)) {
+      passedNet = true;
     }
-    netResult.ball = { ...state.ball, x, y, vx: 0, vy: 0, inPlay: false, trail };
-    netResult.phase = 'point-scored';
-    return checkGameOver(netResult);
   }
 
-  // Player paddle
+  // Player paddle hit — automatic when ball reaches paddle zone
   const pp = state.player;
-  if (y >= pp.y - 2 && y <= pp.y + pp.height && x >= pp.x && x <= pp.x + pp.width && vy > 0) {
-    const newBall = hitBall2D(state, pp.x, pp.x + pp.width / 2, true);
-    return { ...state, ball: { ...newBall, x, y: pp.y - 2, trail } };
+  if (vy > 0 && y >= pp.y - 4 && y <= pp.y + pp.height + 4) {
+    if (x >= pp.x - 8 && x <= pp.x + pp.width + 8 && lastHit === 'opponent') {
+      const newBall = hitBall2D(
+        { x, y, vx, vy, spin, trail, inPlay: true, lastHit, passedNet },
+        pp.x + pp.width / 2,
+        pp.width,
+        true,
+        state.selectedSpin,
+        state.difficulty,
+      );
+      return { ...state, ball: { ...newBall, x, y: pp.y - 6, trail } };
+    }
   }
 
-  // Opponent paddle
+  // Opponent paddle hit — automatic
   const op = state.opponent;
-  if (y <= op.y + op.height + 2 && y >= op.y && x >= op.x && x <= op.x + op.width && vy < 0) {
-    const newBall = hitBall2D(state, op.x, op.x + op.width / 2, false);
-    return { ...state, ball: { ...newBall, x, y: op.y + op.height + 2, trail } };
+  if (vy < 0 && y <= op.y + op.height + 4 && y >= op.y - 4) {
+    if (x >= op.x - 8 && x <= op.x + op.width + 8 && lastHit === 'player') {
+      const newBall = hitBall2D(
+        { x, y, vx, vy, spin, trail, inPlay: true, lastHit, passedNet },
+        op.x + op.width / 2,
+        op.width,
+        false,
+        state.selectedSpin,
+        state.difficulty,
+      );
+      return { ...state, ball: { ...newBall, x, y: op.y + op.height + 6, trail } };
+    }
   }
 
-  // Out bottom — opponent scores
+  // Out bottom — player missed, opponent scores
   if (y > TABLE_2D.height + 20) {
     const spinLabel = SPIN_CONFIGS[spin].label;
     return checkGameOver({
       ...state,
       opponentScore: state.opponentScore + 1,
-      ball: { ...state.ball, inPlay: false, trail },
+      ball: { x, y, vx: 0, vy: 0, spin, trail, inPlay: false, lastHit, passedNet },
       phase: 'point-scored',
-      pointMessage: lastHit === 'player' ? `AI's point! Your ${spinLabel} went out` : `AI's point! You missed`,
+      pointMessage: lastHit === 'player'
+        ? `AI's point! Your ${spinLabel} went long`
+        : `AI's point! You missed the return`,
     });
   }
 
-  // Out top — player scores
+  // Out top — opponent missed, player scores
   if (y < -20) {
     const spinLabel = SPIN_CONFIGS[spin].label;
     return checkGameOver({
       ...state,
       playerScore: state.playerScore + 1,
-      ball: { ...state.ball, inPlay: false, trail },
+      ball: { x, y, vx: 0, vy: 0, spin, trail, inPlay: false, lastHit, passedNet },
       phase: 'point-scored',
-      pointMessage: lastHit === 'opponent' ? `Your point! AI's ${spinLabel} went out` : `Your point! AI missed`,
+      pointMessage: lastHit === 'opponent'
+        ? `Your point! AI's ${spinLabel} went long`
+        : `Your point! AI missed the return`,
     });
+  }
+
+  // Out left/right wide — last hitter loses
+  if (x < -30 || x > TABLE_2D.width + 30) {
+    const spinLabel = SPIN_CONFIGS[spin].label;
+    if (lastHit === 'player') {
+      return checkGameOver({
+        ...state,
+        opponentScore: state.opponentScore + 1,
+        ball: { x, y, vx: 0, vy: 0, spin, trail, inPlay: false, lastHit, passedNet },
+        phase: 'point-scored',
+        pointMessage: `AI's point! Your ${spinLabel} went wide`,
+      });
+    } else {
+      return checkGameOver({
+        ...state,
+        playerScore: state.playerScore + 1,
+        ball: { x, y, vx: 0, vy: 0, spin, trail, inPlay: false, lastHit, passedNet },
+        phase: 'point-scored',
+        pointMessage: `Your point! AI's ${spinLabel} went wide`,
+      });
+    }
   }
 
   // AI tracking
@@ -219,7 +260,7 @@ export function step2D(state: Game2DState): Game2DState {
 
   return {
     ...state,
-    ball: { x, y, vx, vy, spin, trail, inPlay: true, lastHit, bounced },
+    ball: { x, y, vx, vy, spin, trail, inPlay: true, lastHit, passedNet },
     opponent: { ...state.opponent, x: Math.max(0, Math.min(TABLE_2D.width - TABLE_2D.paddleW, newOpX)) },
   };
 }
@@ -250,7 +291,7 @@ export function nextServe2D(state: Game2DState): Game2DState {
       trail: [],
       inPlay: false,
       lastHit: null,
-      bounced: false,
+      passedNet: false,
     },
   };
 }

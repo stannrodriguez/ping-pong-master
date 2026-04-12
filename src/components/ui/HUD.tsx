@@ -35,7 +35,7 @@ export function HUD() {
               className="text-xs mt-1 font-medium"
               style={{ color: SPIN_CONFIGS[selectedSpin].color }}
             >
-              {SPIN_CONFIGS[selectedSpin].icon} {SPIN_CONFIGS[selectedSpin].label} selected
+              {SPIN_CONFIGS[selectedSpin].icon} {SPIN_CONFIGS[selectedSpin].label} — move mouse to aim
             </span>
           )}
         </div>

@@ -40,21 +40,6 @@ function GameLogic() {
       return;
     }
 
-    if (state.phase === 'playing' && state.ball.isInPlay) {
-      const b = state.ball;
-      const hitZoneZ = TABLE.length / 2 - 1.5;
-
-      if (b.position.z > hitZoneZ - 1 && b.position.z < TABLE.length / 2 + 0.5 && b.lastHitBy === 'opponent') {
-        const paddleX = state.player.paddle.position.x;
-        const dist = Math.abs(b.position.x - paddleX);
-
-        if (dist < 0.8) {
-          const newBall = hitBall(b, state.selectedSpin, paddleX, true);
-          setBall(newBall);
-        }
-      }
-    }
-
     if (state.phase === 'point-scored') {
       state.nextServe();
     }
@@ -87,6 +72,23 @@ function GameLogic() {
 
     const newBall = stepBall(ball, 1 / 60);
     setBall(newBall);
+
+    // Player auto-hit: when ball enters player's zone and was hit by opponent
+    const playerZ = TABLE.length / 2 - 1;
+    if (
+      newBall.isInPlay &&
+      newBall.lastHitBy === 'opponent' &&
+      newBall.position.z > playerZ - 0.5 &&
+      newBall.position.z < playerZ + 1.5
+    ) {
+      const paddleX = player.paddle.position.x;
+      const dist = Math.abs(newBall.position.x - paddleX);
+      if (dist < 1.2) {
+        const state = useGameStore.getState();
+        const hit = hitBall(newBall, state.selectedSpin, paddleX, true);
+        setBall(hit);
+      }
+    }
 
     if (config.mode === 'ai') {
       aiTargetX.current = getAITargetX(newBall, config.difficulty);

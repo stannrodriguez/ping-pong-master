@@ -45,7 +45,7 @@ function dragForce(velocity: Vec3): Vec3 {
 
 export function createInitialBall(): BallState {
   return {
-    position: vec3(0, TABLE.surfaceY + 0.3, -TABLE.length / 2 + 1),
+    position: vec3(0, TABLE.surfaceY + 0.3, TABLE.length / 2 - 1),
     velocity: vec3(),
     spin: vec3(),
     spinType: 'flat',
@@ -70,7 +70,7 @@ export function serveBall(ball: BallState, spinType: SpinType, isPlayer: boolean
       TABLE.surfaceY + 0.3,
       isPlayer ? TABLE.length / 2 - 1 : -TABLE.length / 2 + 1
     ),
-    velocity: vec3(xSpread * 0.5, 2.5, -dir * GAME.serveSpeed),
+    velocity: vec3(xSpread * 0.5, 2.0, -dir * GAME.serveSpeed),
     spin: { ...cfg.rpm },
     spinType,
     isServing: false,
@@ -90,16 +90,16 @@ export function hitBall(
   const cfg = SPIN_CONFIGS[spinType];
   const dir = isPlayer ? 1 : -1;
 
-  const offsetX = (paddleX - ball.position.x) * 0.3;
-  const speed = GAME.returnSpeed + Math.random() * 2;
+  const offsetX = (ball.position.x - paddleX);
+  const speed = GAME.returnSpeed + Math.random() * 1.5;
 
-  let vy = 1.8;
-  if (spinType === 'topspin') vy = 1.2;
-  if (spinType === 'backspin') vy = 2.5;
+  let vy = 2.0;
+  if (spinType === 'topspin') vy = 1.5;
+  if (spinType === 'backspin') vy = 2.8;
 
   return {
     ...ball,
-    velocity: vec3(-offsetX * 2, vy, -dir * speed),
+    velocity: vec3(offsetX * 2.5, vy, -dir * speed),
     spin: { ...cfg.rpm },
     spinType,
     lastHitBy: isPlayer ? 'player' : 'opponent',
@@ -142,15 +142,16 @@ export function stepBall(ball: BallState, dt: number): BallState {
         newVel.z *= 0.75;
         newVel.y *= 1.1;
       } else if (ball.spinType === 'sidespin-left') {
-        newVel.x -= 1.5;
+        newVel.x -= 1.0;
       } else if (ball.spinType === 'sidespin-right') {
-        newVel.x += 1.5;
+        newVel.x += 1.0;
       }
 
       bounceCount++;
     }
   }
 
+  // Net collision — only if ball is below net height
   const netZ = 0;
   const prevZ = ball.position.z;
   if ((prevZ < netZ && newPos.z >= netZ) || (prevZ > netZ && newPos.z <= netZ)) {
@@ -193,16 +194,6 @@ export function checkPoint(ball: BallState): 'player' | 'opponent' | null {
 
   if (ball.position.y < -1) {
     return ball.lastHitBy === 'player' ? 'opponent' : 'player';
-  }
-
-  if (ball.bounceCount >= 2) {
-    if (ball.lastHitBy === 'player') {
-      if (ball.position.z < 0) return 'opponent';
-      return 'opponent';
-    } else {
-      if (ball.position.z > 0) return 'player';
-      return 'player';
-    }
   }
 
   return null;
