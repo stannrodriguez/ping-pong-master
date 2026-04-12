@@ -27,7 +27,10 @@ function GameLogic() {
     mouseX.current = normalized * (TABLE.width / 2) * 0.9;
   }, []);
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback((e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName !== 'CANVAS') return;
+
     const state = useGameStore.getState();
 
     if (state.phase === 'serving' && state.isPlayerServing) {
