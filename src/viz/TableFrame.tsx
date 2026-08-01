@@ -138,14 +138,6 @@ export function ScaleLabels({
               {v.toFixed(1)}
             </text>
           ))}
-      <text
-        x={x(horizontal.max)}
-        y={y(vertical.min) + 14}
-        textAnchor="end"
-        className="viz-label"
-      >
-        metres
-      </text>
     </g>
   );
 }
