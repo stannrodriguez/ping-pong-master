@@ -10,7 +10,7 @@ import {
   v3,
   type LaunchSpec,
 } from '../physics';
-import { SECTIONS } from '../ui/AppShell';
+import { SECTIONS } from '../ui/sections';
 import { LegendItem } from '../ui/controls';
 import { TableFrame } from '../viz/TableFrame';
 import { Ball } from '../viz/TableFrame';

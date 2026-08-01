@@ -1,17 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
-/**
- * The app is six views, each answering one question. The nav names the questions
- * rather than the features, because "what shape does this shot make" is what a
- * learner is actually looking for.
- */
-export const SECTIONS = [
-  { to: '/trajectory', label: 'Trajectory', question: 'What shape does this shot make?' },
-  { to: '/magnus', label: 'Magnus', question: 'Why does spin push the ball sideways?' },
-  { to: '/bounce', label: 'Bounce', question: 'What happens in the 0.5 ms of contact?' },
-  { to: '/shots', label: 'Shots', question: 'How do the real strokes compare?' },
-  { to: '/predict', label: 'Predict', question: 'Can I predict what happens now?' },
-] as const;
+import { SECTIONS } from './sections';
 
 export function AppShell() {
   return (

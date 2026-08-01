@@ -175,6 +175,7 @@ export function LegendItem({
   color,
   label,
   dashed = false,
+  area = false,
   detail,
   onClick,
   active = true,
@@ -182,6 +183,8 @@ export function LegendItem({
   color: string;
   label: string;
   dashed?: boolean;
+  /** Draw a filled swatch instead of a line, for shaded regions. */
+  area?: boolean;
   detail?: string;
   onClick?: () => void;
   active?: boolean;
@@ -189,16 +192,20 @@ export function LegendItem({
   const content = (
     <>
       <svg width="18" height="10" aria-hidden className="shrink-0">
-        <line
-          x1="1"
-          y1="5"
-          x2="17"
-          y2="5"
-          stroke={color}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeDasharray={dashed ? '3 3' : undefined}
-        />
+        {area ? (
+          <rect x="1" y="1" width="16" height="8" fill={color} opacity={0.28} rx="2" />
+        ) : (
+          <line
+            x1="1"
+            y1="5"
+            x2="17"
+            y2="5"
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeDasharray={dashed ? '3 3' : undefined}
+          />
+        )}
       </svg>
       <span className="text-[length:var(--text-sm)] text-[var(--ink-primary)]">{label}</span>
       {detail && <span className="text-[length:var(--text-xs)] text-[var(--ink-muted)]">{detail}</span>}
