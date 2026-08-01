@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './ui/AppShell';
 import { Home } from './pages/Home';
 import { TrajectoryLab } from './pages/TrajectoryLab';
+import { MagnusExplorer } from './pages/MagnusExplorer';
+import { BounceLab } from './pages/BounceLab';
 
 /**
  * Routes are added as each view lands. Anything not yet built redirects home
@@ -15,6 +17,8 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<Home />} />
           <Route path="/trajectory" element={<TrajectoryLab />} />
+          <Route path="/magnus" element={<MagnusExplorer />} />
+          <Route path="/bounce" element={<BounceLab />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
