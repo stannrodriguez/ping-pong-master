@@ -5,6 +5,8 @@ import { Home } from './pages/Home';
 import { TrajectoryLab } from './pages/TrajectoryLab';
 import { MagnusExplorer } from './pages/MagnusExplorer';
 import { BounceLab } from './pages/BounceLab';
+import { ShotGallery } from './pages/ShotGallery';
+import { Predict } from './pages/Predict';
 
 /**
  * Routes are added as each view lands. Anything not yet built redirects home
@@ -19,6 +21,8 @@ export default function App() {
           <Route path="/trajectory" element={<TrajectoryLab />} />
           <Route path="/magnus" element={<MagnusExplorer />} />
           <Route path="/bounce" element={<BounceLab />} />
+          <Route path="/shots" element={<ShotGallery />} />
+          <Route path="/predict" element={<Predict />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
