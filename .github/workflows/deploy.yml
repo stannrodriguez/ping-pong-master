@@ -44,11 +44,14 @@ jobs:
       # route up as normal.
       - run: cp dist/index.html dist/404.html
 
+      # Requires Pages to be enabled once, by hand:
+      #   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+      # This cannot be automated from the workflow. `configure-pages` has an
+      # `enablement: true` option, but creating a Pages site needs administration
+      # scope, and the GITHUB_TOKEN never has it however the `permissions:` block
+      # is written — it fails with "Resource not accessible by integration".
+      # Everything after that first click is automatic.
       - uses: actions/configure-pages@v5
-        with:
-          # Turns Pages on for the repository the first time this runs, so the
-          # deploy does not depend on someone flipping a switch in settings.
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
