@@ -1,5 +1,7 @@
 # SPIN — the physics of table tennis
 
+**[Try it live →](https://stannrodriguez.github.io/ping-pong-master/)**
+
 An interactive explainer for one question: **why does a spinning ping pong ball do what it does?**
 
 Not a game. Every view exists to make one mechanism visible, in real units, with the working shown.

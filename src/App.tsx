@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AppShell } from './ui/AppShell';
 import { Home } from './pages/Home';
@@ -16,12 +16,23 @@ const Trainer = lazy(() =>
 );
 
 /**
- * Routes are added as each view lands. Anything not yet built redirects home
- * rather than rendering a placeholder that looks like a broken page.
+ * Hosts that cannot rewrite unknown paths to index.html — a plain file server, or
+ * anywhere the app is served from a URL it does not control — need hash routing,
+ * because a real path like /trajectory would simply not resolve. Built with
+ * `VITE_HASH_ROUTER=1` to switch.
+ *
+ * GitHub Pages does not need this: it falls back to 404.html, and the deploy
+ * workflow puts a copy of the app there.
  */
+const Router = import.meta.env.VITE_HASH_ROUTER ? HashRouter : BrowserRouter;
+
 export default function App() {
   return (
-    <BrowserRouter>
+    // The router has to know it is mounted under a subdirectory when deployed to
+    // a Pages project site; BASE_URL is whatever `base` was built with, and is
+    // just "/" locally. HashRouter ignores it, which is correct — everything
+    // after the "#" is already relative to wherever the page happens to live.
+    <Router basename={import.meta.env.VITE_HASH_ROUTER ? undefined : import.meta.env.BASE_URL}>
       <Routes>
         <Route element={<AppShell />}>
           <Route path="/" element={<Home />} />
@@ -41,6 +52,6 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }

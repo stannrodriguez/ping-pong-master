@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege needed to publish: read the code, mint the Pages deployment.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; let an in-flight one finish rather than killing it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # The physics engine is the app's whole claim to being correct. If its
+      # tests fail, publishing the site would ship an explainer that disagrees
+      # with itself, so the deploy stops here.
+      - run: npm test
+
+      - run: npm run build
+        env:
+          BASE_PATH: /ping-pong-master/
+
+      # GitHub Pages serves static files with no rewrite rules, so a deep link
+      # like /trajectory would 404 on a hard refresh. Pages falls back to
+      # 404.html, and serving the app there lets the client-side router pick the
+      # route up as normal.
+      - run: cp dist/index.html dist/404.html
+
+      # Requires Pages to be enabled once, by hand:
+      #   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+      # This cannot be automated from the workflow. `configure-pages` has an
+      # `enablement: true` option, but creating a Pages site needs administration
+      # scope, and the GITHUB_TOKEN never has it however the `permissions:` block
+      # is written — it fails with "Resource not accessible by integration".
+      # Everything after that first click is automatic.
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
