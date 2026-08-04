@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AppShell } from './ui/AppShell';
@@ -7,6 +8,12 @@ import { MagnusExplorer } from './pages/MagnusExplorer';
 import { BounceLab } from './pages/BounceLab';
 import { ShotGallery } from './pages/ShotGallery';
 import { Predict } from './pages/Predict';
+
+// The trainer carries the only three.js scene in the app; loading it lazily keeps
+// WebGL out of the bundle for every other page.
+const Trainer = lazy(() =>
+  import('./pages/Trainer').then((m) => ({ default: m.Trainer })),
+);
 
 /**
  * Hosts that cannot rewrite unknown paths to index.html — a plain file server, or
@@ -34,6 +41,14 @@ export default function App() {
           <Route path="/bounce" element={<BounceLab />} />
           <Route path="/shots" element={<ShotGallery />} />
           <Route path="/predict" element={<Predict />} />
+          <Route
+            path="/trainer"
+            element={
+              <Suspense fallback={null}>
+                <Trainer />
+              </Suspense>
+            }
+          />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

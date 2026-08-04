@@ -15,5 +15,6 @@ export * from './constants';
 export * from './aero';
 export * from './spin';
 export * from './bounce';
+export * from './racket';
 export * from './simulate';
 export * from './shots';

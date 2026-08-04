@@ -123,7 +123,20 @@ doing real work:
 Both are asserted in `physics.test.ts`, so the app's prose cannot drift away from what
 the engine actually does.
 
-### 3.4 Integration
+### 3.4 The racket
+
+The receiver's racket, used by the Return Trainer, is the bounce model of §3.3
+applied in the blade's rest frame: restitution along the face normal, one Coulomb
+friction impulse on the contact-point velocity across the rubber, grip/slip decided
+by the same required-vs-available comparison. Only the constants differ — inverted
+rubber grips (μ ≈ 0.6 against the table's 0.25) and a held blade absorbs energy in
+the sponge (e ≈ 0.75 against the table's 0.90). Because μ is high, grip is the
+common regime at the racket, which is exactly why the server's spin dictates what
+the receiver's blade can do: topspin climbs off a flat face, backspin dives off it,
+sidespin walks the return sideways. None of that is coded; it falls out of the one
+impulse rule, and `trainer.test.ts` asserts it.
+
+### 3.5 Integration
 
 RK4 at fixed `dt`, with bisection to land exactly on the table-plane and net-plane
 crossings so contact events are resolved at the true crossing time rather than smeared
@@ -141,6 +154,7 @@ Six routes, each answering one question.
 | `/bounce` | What happens in the 0.5 ms the ball touches the table? |
 | `/shots` | How do the real named shots compare, measurably? |
 | `/predict` | Can I actually predict what happens now? |
+| `/trainer` | Can I choose the right return in time? |
 
 ### 4.1 `/trajectory` — Trajectory Lab (flagship)
 
@@ -186,10 +200,36 @@ Grounded in the simulator, not trivia: given a setup, predict the landing point 
 which of three paths belongs to which spin. Reveal runs the actual sim and explains the
 result with the same force diagram used in the Trajectory Lab.
 
+### 4.6 `/trainer` — Return Trainer
+
+First-person 3D (the only WebGL view; everything else is SVG). The camera stands at
+the receiver's end; an opponent serves from randomised parameters inside five
+realistic families (heavy backspin, no-spin float, fast topspin, sidespin either
+way), every candidate validated as a legal serve by running the simulator. Before
+the ball is on you — optionally before it even bounces, which is the timing a real
+receive allows — you commit to one of nine returns: three strokes (open push, flat
+drive, closed block) × three aims.
+
+The choice builds a racket plane and swing; §3.4 computes the ball off the rubber;
+the simulator flies it. All nine choices are graded the same way and revealed as an
+outcome map, so a rep ends by showing not just "wrong" but the shape of the decision
+space — against a float, the whole push row pops up; against sidespin, one aim
+column survives. Serves that none of the nine choices can return are discarded at
+generation: an unanswerable rep teaches nothing. A per-family accuracy record
+adapts the serve mix toward what the player keeps misreading, and the reveal draws
+the serve against its no-spin ghost — the standing baseline rule, §2.3.
+
+Grading has exactly one judgment call that is not pure simulation: a legal return
+whose apex exceeds 0.45 m is scored as "popped up" (an opponent smashes it). It is
+documented in code as a judgment, not smuggled in as physics.
+
 ## 5. Non-goals
 
 - Gameplay, AI opponents, multiplayer, scoring. The old game modes are removed; they
-  competed for attention with the goal and none of them taught the mechanism.
+  competed for attention with the goal and none of them taught the mechanism. The
+  Return Trainer is not a revival of them: there is no rally, no opponent AI and no
+  points — it is the Predict page's philosophy (the simulator is the answer key)
+  aimed at the one decision a player actually has to make under time pressure.
 - Photoreal rendering. Clarity beats spectacle: legible scale, labelled axes and honest
   numbers are the point.
 
@@ -203,3 +243,4 @@ Merged in sequence, each under 2000 lines:
 4. Magnus Explorer
 5. Bounce Lab
 6. Shot Gallery + Predict It
+7. Return Trainer (racket contact model + first-person 3D receive practice)
