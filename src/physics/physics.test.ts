@@ -13,9 +13,11 @@ import {
   CONTACT,
   GRAVITY,
   TABLE,
+  RUBBER,
   bounceOffTable,
   componentsFromSpin,
   contactPointVelocity,
+  contactWithRacket,
   cross,
   dot,
   dragForce,
@@ -302,6 +304,99 @@ describe('bounce', () => {
       const energy = (v: Vec3, w: Vec3) =>
         0.5 * BALL.mass * length(v) ** 2 +
         0.5 * BALL.inertiaFactor * BALL.mass * BALL.radius ** 2 * length(w) ** 2;
+      expect(energy(result.velocity, result.spin)).toBeLessThanOrEqual(
+        energy(state.velocity, state.spin) + 1e-12,
+      );
+    }
+  });
+});
+
+describe('racket contact', () => {
+  // A blade held vertically, facing a ball that arrives travelling +z.
+  const blade = (velocity: Vec3 = v3()): { normal: Vec3; velocity: Vec3 } => ({
+    normal: v3(0, 0, -1),
+    velocity,
+  });
+  const ball = (topspinRps: number, speed = 5): { velocity: Vec3; spin: Vec3 } => {
+    const velocity = v3(0, 0, speed);
+    return {
+      velocity,
+      spin: spinFromComponents(velocity, { topspin: topspinRps, sidespin: 0, corkscrew: 0 }),
+    };
+  };
+
+  it('reflects a spinless ball off a stationary blade with the rubber restitution', () => {
+    const result = contactWithRacket(ball(0), blade());
+    expect(result.velocity.z).toBeCloseTo(-5 * RUBBER.restitution, 9);
+    expect(Math.abs(result.velocity.x)).toBeLessThan(1e-12);
+    expect(Math.abs(result.velocity.y)).toBeLessThan(1e-12);
+    expect(length(result.spin)).toBeLessThan(1e-12);
+  });
+
+  it('kicks an incoming topspin ball upward off the blade, and backspin downward', () => {
+    // The receiver's whole problem in one assertion: the server's spin decides
+    // which way the ball leaves *your* racket. Topspin makes the contact patch
+    // slide down the rubber, so friction throws the ball up; backspin the reverse.
+    // This is why a face angle that returns one serve buries the other.
+    expect(contactWithRacket(ball(60), blade()).velocity.y).toBeGreaterThan(0.5);
+    expect(contactWithRacket(ball(-60), blade()).velocity.y).toBeLessThan(-0.5);
+  });
+
+  it('throws a sidespin ball laterally off the blade', () => {
+    const velocity = v3(0, 0, 5);
+    const spun = {
+      velocity,
+      spin: spinFromComponents(velocity, { topspin: 0, sidespin: 60, corkscrew: 0 }),
+    };
+    const result = contactWithRacket(spun, blade());
+    expect(Math.abs(result.velocity.x)).toBeGreaterThan(0.5);
+  });
+
+  it('caps the friction impulse at μ·J_n when the ball slides', () => {
+    // Slip needs heavy spin AND a soft approach: the normal impulse scales with
+    // approach speed, so a fast ball hands friction a big enough budget to grip
+    // almost anything. A slow touch against heavy spin is where the rubber slides.
+    const result = contactWithRacket(ball(-140, 3), blade());
+    expect(result.regime).toBe('slip');
+    expect(length(result.frictionImpulse)).toBeCloseTo(result.frictionImpulseAvailable, 12);
+    expect(result.frictionImpulseAvailable).toBeCloseTo(
+      RUBBER.friction * result.normalImpulse,
+      12,
+    );
+  });
+
+  it('grips at spin levels the slicker table would let slide', () => {
+    const incoming = ball(-60, 5);
+    const offRacket = contactWithRacket(incoming, blade());
+    const offTable = bounceOffTable({
+      velocity: v3(0, -5, 0.001),
+      spin: incoming.spin,
+    });
+    expect(offRacket.regime).toBe('grip');
+    expect(offTable.regime).toBe('slip');
+  });
+
+  it('imparts the stroke: a moving blade sends the ball back faster than a still one', () => {
+    const still = contactWithRacket(ball(0), blade());
+    const swung = contactWithRacket(ball(0), blade(v3(0, 0, -4)));
+    expect(Math.abs(swung.velocity.z)).toBeGreaterThan(Math.abs(still.velocity.z) + 4);
+  });
+
+  it('passes the ball through untouched when it is not approaching the blade', () => {
+    const receding = { velocity: v3(0, 0, -3), spin: v3(10, 0, 0) };
+    const result = contactWithRacket(receding, blade());
+    expect(result.velocity).toEqual(receding.velocity);
+    expect(result.spin).toEqual(receding.spin);
+    expect(result.normalImpulse).toBe(0);
+  });
+
+  it('never adds energy at a stationary blade', () => {
+    const energy = (v: Vec3, w: Vec3) =>
+      0.5 * BALL.mass * length(v) ** 2 +
+      0.5 * BALL.inertiaFactor * BALL.mass * BALL.radius ** 2 * length(w) ** 2;
+    for (const rps of [-120, -40, 0, 40, 120]) {
+      const state = ball(rps, 6);
+      const result = contactWithRacket(state, blade());
       expect(energy(result.velocity, result.spin)).toBeLessThanOrEqual(
         energy(state.velocity, state.spin) + 1e-12,
       );

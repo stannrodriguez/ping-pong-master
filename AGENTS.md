@@ -4,7 +4,8 @@
 
 An interactive explainer for the physics of table tennis spin. **Not a game** — the game
 modes, AI opponent and multiplayer were removed deliberately. See [`SPEC.md`](SPEC.md) for
-the reasoning; read it before adding anything.
+the reasoning; read it before adding anything. The Return Trainer (`/trainer`) is decision
+practice graded by the simulator, not a game mode: no rally, no AI, no points.
 
 ## Commands
 
@@ -14,7 +15,7 @@ the reasoning; read it before adding anything.
 - `npm run lint` — ESLint on `.ts`/`.tsx`
 
 No backend or database. Fully client-side SPA, React Router v7 with `BrowserRouter`.
-Routes: `/`, `/trajectory`, `/magnus`, `/bounce`, `/shots`, `/predict`.
+Routes: `/`, `/trajectory`, `/magnus`, `/bounce`, `/shots`, `/predict`, `/trainer`.
 
 ## Layout
 
@@ -22,6 +23,7 @@ Routes: `/`, `/trajectory`, `/magnus`, `/bounce`, `/shots`, `/predict`.
 | --- | --- |
 | `src/physics/` | The engine. SI units only. Pure functions, no React. |
 | `src/viz/` | Drawing primitives: projections, table frames, force arrows, streamlines. |
+| `src/trainer/` | Return Trainer: serve generation, stroke grading, the R3F scene, audio. |
 | `src/ui/` | Chrome: shell, nav, panels, sliders, readouts. |
 | `src/pages/` | One file per route. |
 
@@ -73,6 +75,12 @@ ugly.
   one every 0.035 radii, and the line renders as dots.
 - **Shot presets are tuned against the simulator**, not hand-written. If you change a
   constant in `src/physics/`, re-check that every preset in `shots.ts` still lands legally.
+- **Stroke and serve constants in `src/trainer/` are tuned the same way.** The coaching
+  truths the trainer teaches are asserted in `src/trainer/trainer.test.ts`; if a constant
+  changes anywhere in the engine, those tests decide whether the trainer still tells the
+  truth. `/trainer` is the only WebGL view and is lazy-loaded so three.js stays out of
+  every other page's bundle. Scene colours are literal copies of the CSS tokens — CSS
+  variables cannot reach WebGL materials.
 
 ## Verifying UI work
 

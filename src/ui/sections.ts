@@ -9,4 +9,5 @@ export const SECTIONS = [
   { to: '/bounce', label: 'Bounce', question: 'What happens in the 0.5 ms of contact?' },
   { to: '/shots', label: 'Shots', question: 'How do the real strokes compare?' },
   { to: '/predict', label: 'Predict', question: 'Can I predict what happens now?' },
+  { to: '/trainer', label: 'Trainer', question: 'Can I choose the right return in time?' },
 ] as const;

@@ -20,6 +20,7 @@ npm test        # physics engine tests
 | `/bounce` | What happens in the half-millisecond the ball touches the table? |
 | `/shots` | How do the real named strokes compare, measurably? |
 | `/predict` | Can you predict what the physics will do? |
+| `/trainer` | Can you choose the right return before the ball is on you? |
 
 ## How it works
 
@@ -38,8 +39,16 @@ differs from the ball's own velocity whenever it is spinning. Grip and slip fall
 comparing the impulse gripping would need against the `μ·J_n` the surface can supply.
 Every phenomenon a player knows comes out of that one rule.
 
+**The racket is the same physics as the table.** `/trainer` puts you at the table in
+first person: read a randomised serve, commit to a stroke and an aim before the ball
+arrives, and the engine plays your actual return. The racket contact is the bounce
+model generalised to a tilted, moving plane with rubber constants (grippier, softer
+than the table) — so "open the racket against backspin" is graded by simulation, not
+by an answer key.
+
 **Every claim is tested.** `src/physics/physics.test.ts` asserts the things the UI says in
-prose. If a test fails, the app's copy has become a lie and one of the two has to change.
+prose, and `src/trainer/trainer.test.ts` asserts the coaching truths the trainer
+teaches. If a test fails, the app's copy has become a lie and one of the two has to change.
 
 ## Things the model produces that it was never told to
 
