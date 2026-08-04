@@ -2,9 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spin Pong — Master Ping Pong Spin</title>
+    <!--
+      %BASE_URL% is substituted by Vite with whatever `base` was built with, so
+      this still resolves when the site is served from a subdirectory. A plain
+      "/favicon.svg" would look for it at the domain root and 404.
+    -->
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <meta name="theme-color" content="#0f1114" />
+    <title>SPIN — the physics of table tennis</title>
+    <meta
+      name="description"
+      content="An interactive explainer for the physics of table tennis spin: the Magnus force in flight, and the friction impulse at the bounce, simulated in real units."
+    />
   </head>
   <body>
     <div id="root"></div>

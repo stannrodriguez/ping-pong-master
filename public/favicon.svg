@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <circle cx="16" cy="16" r="15" fill="#14161a"/>
+  <circle cx="16" cy="17" r="8.5" fill="none" stroke="#f2f3f5" stroke-width="2"/>
+  <!-- Surface-motion arrows: the ball's top moving right, i.e. topspin. -->
+  <path d="M6 12 h11" fill="none" stroke="#9085e9" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M15 9.2 L18.6 12 L15 14.8 z" fill="#9085e9"/>
+</svg>

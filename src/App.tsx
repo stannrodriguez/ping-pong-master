@@ -14,7 +14,10 @@ import { Predict } from './pages/Predict';
  */
 export default function App() {
   return (
-    <BrowserRouter>
+    // The router has to know it is mounted under a subdirectory when deployed
+    // to a Pages project site; BASE_URL is whatever `base` was built with, and
+    // is just "/" locally.
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route element={<AppShell />}>
           <Route path="/" element={<Home />} />
