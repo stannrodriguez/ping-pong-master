@@ -192,7 +192,7 @@ function ContactDiagram({
           lie on top of each other and their labels collide, on every single
           configuration rather than as an edge case.
         */}
-        {arrow('u', cx, surfaceY - 16, u, 'var(--status-warn)', 'u — contact patch', { labelSide: -1, labelGap: 14 })}
+        {arrow('u', cx, surfaceY - 16, u, 'var(--status-warn)', 'slip at bottom (u)', { labelSide: -1, labelGap: 14 })}
         {arrow('f', cx, surfaceY + 28, friction, 'var(--force-drag)', 'friction impulse', { labelSide: 1, labelGap: 14 })}
 
         <text x={12} y={height - 8} className="viz-label">
@@ -333,6 +333,23 @@ export function BounceLab() {
       <PageHeader title="Bounce Lab" question="What happens in the half-millisecond the ball touches the table?" />
 
       <div className="grid gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="lg:col-span-2">
+          <Panel title="What this bounce does">
+            <Note>
+              The ball {result.regime === 'grip' ? 'grips the table' : 'skids across the table'}.
+              Friction{' '}
+              {result.velocity.z > 0
+                ? 'reverses its direction'
+                : speedAfter > speedBefore + 0.05
+                  ? `adds ${(speedAfter - speedBefore).toFixed(1)} m/s of horizontal speed`
+                  : speedAfter < speedBefore - 0.05
+                    ? `removes ${(speedBefore - speedAfter).toFixed(1)} m/s of horizontal speed`
+                    : 'leaves its horizontal speed almost unchanged'}
+              {' '}and changes the spin from {spinBefore.toFixed(0)} to {spinAfter.toFixed(0)} rev/s.
+            </Note>
+          </Panel>
+        </div>
+
         <div className="flex flex-col gap-4">
           <Panel title="The incoming ball">
             <div className="flex flex-col gap-4">
@@ -354,23 +371,22 @@ export function BounceLab() {
           <Panel title="Does it grip or slide?">
             <div className="flex flex-col gap-3">
               <Chip tone={result.regime === 'grip' ? 'good' : 'warn'}>
-                {result.regime === 'grip' ? 'GRIP — contact patch brought to rest' : 'SLIP — friction saturated'}
+                {result.regime === 'grip' ? 'GRIP — the table stops the slip' : 'SKID — the ball keeps sliding'}
               </Chip>
 
               <div className="grid grid-cols-2 gap-4">
-                <Readout label="Patch speed |u|" value={Math.hypot(u.x, u.z).toFixed(2)} unit="m/s" tone="warn" />
-                <Readout label="Grip limit" value={threshold.toFixed(2)} unit="m/s" tone="good" />
+                <Readout label="Bottom slip" value={Math.hypot(u.x, u.z).toFixed(2)} unit="m/s" tone="warn" />
+                <Readout label="Friction limit" value={threshold.toFixed(2)} unit="m/s" tone="good" />
               </div>
 
               <Note>
-                Friction can only bring the patch to rest if |u| is under the limit, and the
-                limit rises with how hard the ball lands. Above it, the impulse is capped at
-                μ·J<sub>n</sub> and the ball slides through the whole contact.
+                Compare the two speeds. If the slip is below the limit, friction stops it and
+                the ball grips. Above the limit, the ball keeps skidding through contact.
               </Note>
             </div>
           </Panel>
 
-          <Panel title="Constants">
+          <Panel title="Model details">
             <div className="grid grid-cols-2 gap-4">
               <Readout label="Restitution" value={CONTACT.restitution.toFixed(2)} note="e — normal bounce" />
               <Readout label="Friction" value={CONTACT.friction.toFixed(2)} note="mu — ball on table" />
@@ -394,7 +410,7 @@ export function BounceLab() {
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--line)] px-3 py-2">
               <LegendItem color="var(--ink-secondary)" label="Velocity in" />
               <LegendItem color="var(--ink-primary)" label="Velocity out" />
-              <LegendItem color="var(--status-warn)" label="Contact-patch velocity u" />
+              <LegendItem color="var(--status-warn)" label="Slip at the bottom (u)" />
               <LegendItem color="var(--force-drag)" label="Friction" />
             </div>
           </figure>
@@ -431,8 +447,8 @@ export function BounceLab() {
               )}
               {result.velocity.z > 0 && (
                 <Chip tone="accent">
-                  The ball bounced backwards. Nothing in the model says it should — friction
-                  simply had more than enough to reverse it.
+                  The ball bounced backwards because friction removed all of its forward
+                  speed and kept pushing.
                 </Chip>
               )}
             </div>
@@ -450,19 +466,17 @@ export function BounceLab() {
             </Panel>
           </div>
 
-          <Panel title="Read the charts">
+          <Panel title="Try the spin sweep">
             <div className="flex flex-col gap-3">
               <Note>
-                Incoming spin runs left (heavy backspin) to right (heavy topspin) on all
-                three. The dashed line is where the ball stops sliding and starts gripping —
-                the slope changes there, and that kink is real physics rather than a
-                blended curve.
+                Start at −160 rev/s of backspin and move the spin slider to the right. The
+                shaded band marks the spins that grip instead of skid. Watch each graph
+                change slope at its edge.
               </Note>
               <Note>
-                On the exit-speed chart, notice the flat section on the backspin side. Once
-                friction has saturated the impulse is capped, so piling on more backspin
-                stops taking any more speed off the ball. What it does change is the exit
-                spin, which is the middle chart, and that keeps moving the whole way.
+                On the exit-speed graph, heavy backspin makes a flat section. Once the ball
+                is skidding, extra backspin cannot make friction any stronger. The exit spin
+                still changes, which is why the middle graph keeps moving.
               </Note>
             </div>
           </Panel>

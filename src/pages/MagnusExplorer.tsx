@@ -306,9 +306,21 @@ export function MagnusExplorer() {
 
   return (
     <>
-      <PageHeader title="Magnus Explorer" question="Why does a spinning ball get pushed sideways at all?" />
+      <PageHeader title="Magnus Explorer" question="Why does spin bend the ball's flight?" />
 
       <div className="grid gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="lg:col-span-2">
+          <Panel title="The short answer">
+            <Note>
+              {topspin
+                ? 'Topspin makes the airflow faster under the ball, so the pressure difference pushes it down.'
+                : 'Backspin makes the airflow faster above the ball, so the pressure difference pushes it up.'}{' '}
+              At these settings, the Magnus force is {inWeights(force).toFixed(2)} times the
+              ball's weight.
+            </Note>
+          </Panel>
+        </div>
+
         <div className="flex flex-col gap-4">
           <Panel title="The ball">
             <div className="flex flex-col gap-4">
@@ -326,24 +338,30 @@ export function MagnusExplorer() {
             </div>
           </Panel>
 
-          <Panel title="The numbers">
+          <Panel title="Spin compared with speed">
             <div className="grid grid-cols-2 gap-4">
-              <Readout label="Spin ratio S" value={S.toFixed(2)} tone="accent" note="r·ω / v" />
-              <Readout label="Lift coeff." value={liftCoefficient(S).toFixed(3)} note="C_L(S)" />
-              <Readout label="Surface speed" value={surfaceSpeed.toFixed(1)} unit="m/s" note="r·ω" />
+              <Readout label="Ratio" value={S.toFixed(2)} tone="accent" note="S = r·ω / v" />
+              <Readout label="Ball surface" value={surfaceSpeed.toFixed(1)} unit="m/s" note="r·ω" />
               <Readout label="Magnus force" value={inWeights(force).toFixed(2)} unit="g" tone="accent" />
+            </div>
+            <div className="mt-3">
+              <Note>
+                Keep spin at {rate.toFixed(0)} rev/s and move <strong>Ball speed</strong>.
+                The ratio falls as the ball gets faster: the same spin matters less relative
+                to the speed of the shot.
+              </Note>
             </div>
           </Panel>
 
-          <Panel title="Drag pays too">
-            <Readout label="Drag coeff." value={dragCoefficient(S).toFixed(3)} note="C_D(S)" />
-            <div className="mt-3">
-              <Note>
-                Spin does not only bend the path — it costs a little extra drag as well. A
-                heavily-spun ball is a slightly slower ball, which is one reason a
-                maximum-spin loop is never also a maximum-speed one.
-              </Note>
+          <Panel title="Model details">
+            <div className="grid grid-cols-2 gap-4">
+              <Readout label="Lift coefficient" value={liftCoefficient(S).toFixed(3)} note="C_L(S)" />
+              <Readout label="Drag coefficient" value={dragCoefficient(S).toFixed(3)} note="C_D(S)" />
             </div>
+            <p className="mt-3 text-[length:var(--text-xs)] leading-relaxed text-[var(--ink-muted)]">
+              Spin also raises drag slightly. At the same launch speed, a spinning ball
+              loses a little more speed in the air than a no-spin ball.
+            </p>
           </Panel>
         </div>
 
@@ -354,7 +372,7 @@ export function MagnusExplorer() {
                 Airflow, seen from the ball
               </span>
               <span className="text-[length:var(--text-xs)] text-[var(--ink-muted)]">
-                streamlines traced through the flow solution
+                line spacing shows relative airflow speed
               </span>
             </figcaption>
             <div className="p-2">
@@ -368,7 +386,7 @@ export function MagnusExplorer() {
           </figure>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Panel title="What you are looking at">
+            <Panel title="How to read the airflow">
               <div className="flex flex-col gap-3">
                 <Note>
                   The ball drags a thin layer of air around with it. On one side that layer
@@ -377,38 +395,31 @@ export function MagnusExplorer() {
                   Faster flow means lower pressure, so the ball is pushed toward the fast
                   side. For topspin, that side is underneath.
                 </Note>
-                <Note>
-                  Notice the two stagnation points — where a streamline runs straight into
-                  the ball — have rotated away from the horizontal. That rotation is the
-                  circulation, and it is what the whole force is proportional to.
-                </Note>
                 <p className="text-[length:var(--text-xs)] leading-relaxed text-[var(--ink-muted)]">
-                  Honest caveat: these streamlines are the exact solution for ideal flow
-                  around a <em>cylinder</em> with circulation. That gets the direction and
-                  the asymmetry right and the magnitude wrong — real lift comes from
-                  asymmetric separation, not ideal circulation. Every number on this page is
-                  taken from the measured C<sub>L</sub> fit instead, never from this picture.
+                  What this picture leaves out: the streamlines show the correct direction
+                  and asymmetry, but not the force magnitude. The force readout uses measured
+                  table-tennis-ball data.
                 </p>
               </div>
             </Panel>
 
-            <Panel title="Why more spin stops helping" subtitle="C_L saturates with spin ratio">
+            <Panel title="Where extra spin stops helping" subtitle="The curve flattens as the ratio rises">
               <LiftCurve current={S} />
               <div className="mt-2 flex flex-wrap gap-2">
                 <Chip tone="accent">S = {S.toFixed(2)}</Chip>
                 <Chip>
                   {S < 0.3
-                    ? 'Low: spin barely bends this shot'
+                    ? 'Low ratio — spin has little effect'
                     : S < 1
-                      ? 'The steep part — spin is buying a lot here'
-                      : 'Saturated — more spin buys very little now'}
+                      ? 'Steep part — more spin still matters'
+                      : 'Flat part — more spin adds little lift'}
                 </Chip>
               </div>
               <div className="mt-3">
                 <Note>
-                  S is a ratio, so it rises just as fast by slowing the ball down as by
-                  spinning it harder. That is why the heaviest-spun balls in the sport are
-                  slow ones, and why the same 100 rev/s barely curves a smash.
+                  Because S compares surface speed with ball speed, you can raise it by
+                  adding spin or by slowing the shot. Hold the spin steady and move the
+                  speed slider to see the ratio change.
                 </Note>
               </div>
             </Panel>

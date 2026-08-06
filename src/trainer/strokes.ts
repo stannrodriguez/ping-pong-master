@@ -169,9 +169,9 @@ export function explainReturn(ball: BallState, result: ReturnResult): string {
   const { contact, outcome } = result;
   const gripped = contact.regime === 'grip';
   const bite = gripped
-    ? 'The rubber gripped the ball fully'
-    : 'The ball slid across the rubber';
-  const spinNote = `incoming spin moved the contact patch at ${vecSpeed(contact.contactVelocity).toFixed(1)} m/s across the face, and friction answered it`;
+    ? 'The rubber stopped the ball sliding across the face.'
+    : 'The ball kept sliding across the rubber.';
+  const spinNote = `The incoming spin made the contact point move at ${vecSpeed(contact.contactVelocity).toFixed(1)} m/s across the face.`;
 
   const ending =
     outcome === 'landed'
@@ -184,7 +184,7 @@ export function explainReturn(ball: BallState, result: ReturnResult): string {
             ? 'The sideways throw off the rubber carried it past the sideline.'
             : 'It came off the blade downward and died on your own half.';
 
-  return `${bite} — ${spinNote}. ${ending}`;
+  return `${bite} ${spinNote} ${ending}`;
 }
 
 function vecSpeed(v: Vec3): number {

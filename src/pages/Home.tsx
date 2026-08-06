@@ -131,15 +131,14 @@ export function Home() {
     <div className="mx-auto max-w-5xl px-5 py-10 sm:py-14">
       <div className="fade-in">
         <h1 className="text-[length:var(--text-2xl)] font-black leading-[1.05] tracking-tight text-[var(--ink-primary)] sm:text-[length:var(--text-3xl)]">
-          Spin is a force,
+          Spin bends the flight
           <br />
-          not a personality.
+          and changes the bounce.
         </h1>
         <p className="mt-4 max-w-xl text-[length:var(--text-base)] leading-relaxed text-[var(--ink-secondary)]">
-          Table tennis players describe spin in adjectives — heavy, loaded, dead. It is
-          actually two mechanisms you can calculate: a sideways push from the air, and a
-          friction impulse lasting half a millisecond. This app simulates both, in real
-          units, and shows you the working.
+          In the air, spin creates a Magnus force that curves the ball. At the table,
+          friction changes its speed, spin and direction. Use the controls to see both
+          effects against the same shot with its spin removed.
         </p>
       </div>
 
@@ -162,21 +161,33 @@ export function Home() {
       </div>
 
       <p className="mt-6 max-w-2xl text-[length:var(--text-base)] leading-relaxed text-[var(--ink-secondary)] fade-in">
-        Strip the topspin out of that first shot and change nothing else, and it lands{' '}
+        Remove the topspin from that first shot and change nothing else. It lands{' '}
         <strong className="tnum text-[var(--ink-primary)]">{overshoot.toFixed(2)} m</strong> further
-        down — well past the end of the table. That gap is the whole reason the modern
-        attacking game exists, and it is a number this simulator computes rather than a
-        claim it repeats.
+        down — past the end of the table. Topspin adds the downward force that pulls the
+        original shot back onto the table.
       </p>
 
-      <nav className="mt-10 grid gap-3 sm:grid-cols-2 fade-in">
-        {SECTIONS.map((section) => (
+      <div className="mt-10 fade-in">
+        <p className="text-[length:var(--text-sm)] font-semibold text-[var(--ink-primary)]">
+          Learn it in order
+        </p>
+        <p className="mt-1 text-[length:var(--text-sm)] text-[var(--ink-secondary)]">
+          Start with the path, then work through the cause, the bounce and the decisions a
+          player makes.
+        </p>
+      </div>
+
+      <nav className="mt-4 grid gap-3 sm:grid-cols-2 fade-in">
+        {SECTIONS.map((section, index) => (
           <Link
             key={section.to}
             to={section.to}
             className="group rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--surface-1)] p-4 transition-colors hover:border-[var(--line-strong)] hover:bg-[var(--surface-2)]"
           >
-            <span className="text-[length:var(--text-base)] font-semibold text-[var(--ink-primary)]">
+            <span className="flex items-center gap-2 text-[length:var(--text-base)] font-semibold text-[var(--ink-primary)]">
+              <span className="tnum text-[length:var(--text-xs)] text-[var(--accent)]">
+                {index + 1}
+              </span>
               {section.label}
             </span>
             <span className="mt-1 block text-[length:var(--text-sm)] text-[var(--ink-secondary)]">
@@ -187,9 +198,8 @@ export function Home() {
       </nav>
 
       <p className="mt-10 text-[length:var(--text-xs)] leading-relaxed text-[var(--ink-muted)] fade-in">
-        Everything here runs on one engine, in SI units, with no per-spin special cases:
-        one Magnus term and one friction impulse at the contact point. Its behaviour is
-        pinned by tests that assert every claim this app makes in prose.
+        The dashed path always shows the identical shot with its spin removed. Use it as
+        the reference: the gap between the two paths is what spin changed.
       </p>
     </div>
   );

@@ -57,7 +57,7 @@ const OUTCOME_SHORT: Record<ReturnResult['outcome'], string> = {
   net: 'Net',
   long: 'Long',
   wide: 'Wide',
-  'own-half': 'Dumped',
+  'own-half': 'Your side',
 };
 
 export function Trainer() {
@@ -214,7 +214,7 @@ export function Trainer() {
   const hud = (() => {
     switch (phase) {
       case 'toss':
-        return 'Watch the serve…';
+        return 'Watch the racket contact…';
       case 'flight':
         if (choice) return `Locked: ${describeChoice(choice)}`;
         if (timing === 'match') {
@@ -242,7 +242,7 @@ export function Trainer() {
     <>
       <PageHeader
         title="Return Trainer"
-        question="Can you choose the right return before the ball is on you?"
+        question="Can you read the spin and choose a return in time?"
       >
         <div className="flex items-center gap-3">
           {streak > 1 && <Chip tone="accent">{streak} in a row</Chip>}
@@ -280,14 +280,14 @@ export function Trainer() {
             {phase === 'idle' && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[rgb(15_17_20/0.55)] p-6 text-center">
                 <p className="max-w-md text-[length:var(--text-base)] text-[var(--ink-primary)]">
-                  You are at the table. A serve is coming. Read its spin from the toss, the
-                  flight and the bounce — then commit to a return before the ball is on you.
+                  Watch the racket contact, then check the flight and bounce. Choose a stroke
+                  and aim before the ball reaches you.
                 </p>
                 <button
                   onClick={start}
                   className="cursor-pointer rounded-[var(--radius)] bg-[var(--accent)] px-6 py-2.5 text-[length:var(--text-base)] font-semibold text-[var(--accent-ink)]"
                 >
-                  Serve me ↵
+                  Start serve ↵
                 </button>
               </div>
             )}
@@ -309,7 +309,7 @@ export function Trainer() {
         <div className="flex flex-col gap-4">
           <Panel
             title="Your return"
-            subtitle="Stroke sets the face and swing; aim sets the line."
+            subtitle="Push = open face · Drive = lift through · Block = closed face"
           >
             <div className="grid grid-cols-[minmax(0,auto)_1fr_1fr_1fr] items-stretch gap-1.5">
               <div />
@@ -349,15 +349,15 @@ export function Trainer() {
               <div className="flex flex-col gap-2.5">
                 <div className="grid grid-cols-2 gap-3">
                   <Readout
-                    label="Returned"
+                    label="Safe returns"
                     value={totals.total === 0 ? '—' : `${totals.right}/${totals.total}`}
                   />
                   <Readout label="Streak" value={streak} />
                 </div>
                 {totals.total > 0 && <FamilyBars record={record} />}
                 <Note>
-                  Serves are drawn from five families and the mix adapts: whatever you keep
-                  misreading turns up more often until you answer it.
+                  The trainer sends more of the serves you miss, then eases off when you
+                  return them safely.
                 </Note>
               </div>
             </Panel>
@@ -424,19 +424,17 @@ export function Trainer() {
               </label>
               <Note>
                 Learning mode shows the flight trail, the spin axis and the strike zone.
-                Match mode takes the aids away and, with the decision window on, makes you
-                commit before the ball bounces on your side — the timing a real receive
-                gives you.
+                Match mode removes those aids. Turn on <strong>Before bounce</strong> when
+                you are ready to commit before the ball lands on your side.
               </Note>
             </div>
           </Panel>
 
-          <Panel title="How this works">
+          <Panel title="Read the result grid">
             <Note>
-              No answer key. Your stroke choice builds a racket face and swing; a friction
-              impulse model — the same one that produces the topspin kick off the table —
-              computes how the ball leaves your rubber, and the simulator flies it. The
-              outcome grid shows all nine choices played the same way.
+              After each serve, every cell shows where that stroke-and-aim choice would have
+              gone. Read across a row to compare aim; read down a column to compare racket
+              face and swing.
             </Note>
           </Panel>
         </div>
@@ -602,7 +600,7 @@ function ServeReveal({
   }, [rep]);
 
   return (
-    <Panel title="The serve, revealed">
+    <Panel title="What happened">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <Chip tone="accent">{rep.family.name}</Chip>
@@ -610,6 +608,7 @@ function ServeReveal({
             {spinLabel}
           </span>
         </div>
+        <Note>{rep.family.read}</Note>
         <div className="grid grid-cols-3 gap-3">
           <Readout label="Launch" value={launchSpeed.toFixed(1)} unit="m/s" />
           <Readout label="Spin" value={spinRate.toFixed(0)} unit="rev/s" />
@@ -626,7 +625,6 @@ function ServeReveal({
             />
           )}
         </div>
-        <Note>{rep.family.read}</Note>
         {late ? (
           <Note>
             No stroke was played. The dashed line in the scene is this serve with its spin

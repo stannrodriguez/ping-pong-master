@@ -19,7 +19,9 @@ import {
   contactPointVelocity,
   contactWithRacket,
   cross,
+  describeSpin,
   dot,
+  dragCoefficient,
   dragForce,
   gripThreshold,
   launchFrom,
@@ -55,6 +57,23 @@ function shot(topspinRps: number, speed = 12) {
 }
 
 describe('spin conventions', () => {
+  it('labels tiny residual spin as near no-spin without hiding a true zero', () => {
+    const velocity = v3(0, 0, -5);
+    expect(describeSpin(velocity, v3())).toBe('No spin');
+    expect(
+      describeSpin(
+        velocity,
+        spinFromComponents(velocity, { topspin: 1, sidespin: 0, corkscrew: 0 }),
+      ),
+    ).toBe('Near no spin');
+    expect(
+      describeSpin(
+        velocity,
+        spinFromComponents(velocity, { topspin: 5, sidespin: 0, corkscrew: 0 }),
+      ),
+    ).toBe('Light topspin');
+  });
+
   it('builds topspin as a vector whose top surface moves along the travel direction', () => {
     const velocity = v3(0, 0, -10);
     const spin = spinFromComponents(velocity, { topspin: 50, sidespin: 0, corkscrew: 0 });
@@ -141,6 +160,10 @@ describe('aerodynamics', () => {
     const fast = dragForce(v3(0, 0, -10), v3());
     expect(slow.z).toBeGreaterThan(0); // opposes travel toward -z
     expect(length(fast) / length(slow)).toBeCloseTo(4, 6);
+  });
+
+  it('raises the drag coefficient when spin is added at the same speed', () => {
+    expect(dragCoefficient(1)).toBeGreaterThan(dragCoefficient(0));
   });
 
   it('makes drag comparable to gravity at rally speeds', () => {

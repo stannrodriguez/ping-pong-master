@@ -38,27 +38,27 @@ export const SERVE_FAMILIES: ServeFamily[] = [
   {
     id: 'backspin',
     name: 'Heavy backspin',
-    read: 'Float in the air, dies off the bounce. Open the racket and lift, or it goes into the net.',
+    read: 'Open the racket and lift. A flat or closed face sends this backspin return down.',
   },
   {
     id: 'float',
     name: 'No-spin float',
-    read: 'Looks like backspin, is not. A flat drive punishes it; a big open push pops it up.',
+    read: 'This serve carries almost no spin. Drive it with a near-flat face; an open push sends it high.',
   },
   {
     id: 'topspin',
     name: 'Fast topspin',
-    read: 'Long, quick, kicks forward off the bounce. Close the face and block it back — an open push balloons it.',
+    read: 'Topspin kicks forward after the bounce. Close the face and block; an open push sends the return high.',
   },
   {
     id: 'side-left',
     name: 'Sidespin, kicking left',
-    read: 'Curves and kicks toward your left, then throws your return further left off the rubber. Hit through it and aim right — a slow push gets thrown wide.',
+    read: 'The spin sends your return left off the rubber. Aim right to compensate; a slow push is more easily carried wide.',
   },
   {
     id: 'side-right',
     name: 'Sidespin, kicking right',
-    read: 'The mirror serve. It walks your return to the right — hit through it and aim left to compensate.',
+    read: 'The spin sends your return right off the rubber. Aim left to compensate.',
   },
 ];
 

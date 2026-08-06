@@ -113,7 +113,11 @@ export function surfaceSpeed(spin: Vec3): number {
  */
 export function describeSpin(velocity: Vec3, spin: Vec3): string {
   const rate = spinRateRps(spin);
-  if (rate < 1) return 'No spin';
+  // Below 3 rev/s, the difference is not a useful cue for a player. Treat that
+  // tiny residual as near no-spin instead of contradicting labels such as
+  // "No-spin float" with a readout of "Light topspin".
+  if (rate < 0.05) return 'No spin';
+  if (rate < 3) return 'Near no spin';
 
   const c = componentsFromSpin(velocity, spin);
   const parts: string[] = [];
