@@ -4,10 +4,10 @@
  * tripping fast-refresh's component-only-exports rule.
  */
 export const SECTIONS = [
-  { to: '/trajectory', label: 'Trajectory', question: 'What shape does this shot make?' },
-  { to: '/magnus', label: 'Magnus', question: 'Why does spin push the ball sideways?' },
-  { to: '/bounce', label: 'Bounce', question: 'What happens in the 0.5 ms of contact?' },
-  { to: '/shots', label: 'Shots', question: 'How do the real strokes compare?' },
-  { to: '/predict', label: 'Predict', question: 'Can I predict what happens now?' },
-  { to: '/trainer', label: 'Trainer', question: 'Can I choose the right return in time?' },
+  { to: '/trajectory', label: 'Trajectory', question: 'See how spin changes a shot.' },
+  { to: '/magnus', label: 'Magnus', question: 'Learn why spin bends the flight.' },
+  { to: '/bounce', label: 'Bounce', question: 'See why the ball grips, skids or kicks.' },
+  { to: '/shots', label: 'Shots', question: 'Compare the strokes you already know.' },
+  { to: '/predict', label: 'Predict', question: 'Call the flight and bounce before the reveal.' },
+  { to: '/trainer', label: 'Trainer', question: 'Choose a return before the ball arrives.' },
 ] as const;

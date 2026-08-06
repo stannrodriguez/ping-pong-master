@@ -215,6 +215,16 @@ export function TrajectoryLab() {
   }, [spun, plain]);
 
   const S = spinRatio(launch.velocity, launch.spin);
+  const launchForces = forcesAt({ ...launch, t: 0 });
+  const magnusWeight = inWeights(launchForces.magnus);
+  const magnusDirection = [
+    { size: Math.abs(launchForces.magnus.y), label: launchForces.magnus.y < 0 ? 'down' : 'up' },
+    { size: Math.abs(launchForces.magnus.x), label: launchForces.magnus.x < 0 ? 'left' : 'right' },
+  ]
+    .sort((a, b) => b.size - a.size)
+    .filter((part, _, all) => part.size > 1e-9 && part.size >= all[0].size * 0.2)
+    .map((part) => part.label)
+    .join(' and ');
 
   /** m — how far the ball wanders across the table over the whole flight. */
   const lateralSpread = useMemo(() => {
@@ -224,7 +234,7 @@ export function TrajectoryLab() {
 
   return (
     <>
-      <PageHeader title="Trajectory Lab" question="What shape does this shot make, and what forces make that shape?">
+      <PageHeader title="Trajectory Lab" question="How does spin change this shot?">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setPlaying((p) => !p)}
@@ -252,8 +262,24 @@ export function TrajectoryLab() {
       </PageHeader>
 
       <div className="grid gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="lg:col-span-2">
+          <Panel title="What spin is doing">
+            <Note>
+              {magnusWeight < 0.01
+                ? 'This shot has no Magnus force, so its path matches the dashed no-spin reference.'
+                : `At launch, ${describeSpin(launch.velocity, launch.spin).toLowerCase()} pushes the ball ${magnusDirection} with ${magnusWeight.toFixed(2)} times its own weight.`}{' '}
+              {shift
+                ? `That moves the landing point ${formatLength(Math.abs(shift.along))} ${shift.along > 0 ? 'shorter' : 'longer'} than the no-spin shot.`
+                : 'The no-spin comparison does not reach the table.'}
+            </Note>
+          </Panel>
+        </div>
+
         <div className="flex flex-col gap-4">
-          <Panel title="The shot" subtitle="Change one thing at a time and watch what moves.">
+          <Panel
+            title="The shot"
+            subtitle="Keep spin fixed and sweep Speed: the same rev/s matters less as the ball gets faster."
+          >
             <div className="flex flex-col gap-4">
               <Slider label="Speed" value={shot.speed} min={3} max={25} step={0.5} unit="m/s" onChange={set('speed')} format={(v) => v.toFixed(1)} />
               <Slider label="Launch angle" value={shot.elevation} min={-12} max={26} step={1} unit="°" onChange={set('elevation')} />
@@ -287,17 +313,17 @@ export function TrajectoryLab() {
             </p>
           </Panel>
 
-          <Panel title="Right now">
+          <Panel title="Forces at this moment">
             <div className="grid grid-cols-2 gap-4">
-              <Readout label="Spin ratio S" value={S.toFixed(2)} tone="accent" note="r·ω / v" />
+              <Readout label="Spin / speed" value={S.toFixed(2)} tone="accent" note="S = r·ω / v" />
               <Readout label="Magnus" value={inWeights(forces.magnus).toFixed(2)} unit="g" />
               <Readout label="Drag" value={inWeights(forces.drag).toFixed(2)} unit="g" />
               <Readout label="Speed" value={Math.hypot(head.velocity.x, head.velocity.y, head.velocity.z).toFixed(1)} unit="m/s" />
             </div>
             <div className="mt-4">
               <Note>
-                Magnus is always perpendicular to the velocity, so it only ever bends the
-                path — it never speeds the ball up or slows it down. All of that is drag.
+                Magnus bends the path without changing the ball's speed. Drag is the force
+                that slows it down.
               </Note>
             </div>
           </Panel>
@@ -329,16 +355,16 @@ export function TrajectoryLab() {
           ) : (
             <div className="rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--surface-1)] px-4 py-3">
               <Note>
-                No plan view: this spin axis has no vertical component, so ω × v has no
-                horizontal part and the ball does not curve sideways at all. Rake the axis
-                past 0° to put the Magnus force into the horizontal plane.
+                This axis creates no sideways force, so the plan view would be a straight
+                line. Move <strong>Axis rake</strong> above 0° to add sidespin and reveal
+                the plan view.
               </Note>
             </div>
           )}
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--surface-1)] px-4 py-3">
             <LegendItem color="var(--ink-primary)" label="This shot" />
-            <LegendItem color="var(--spin-none)" label="Same shot, no spin" dashed detail="baseline" />
+            <LegendItem color="var(--spin-none)" label="Same shot, no spin" dashed detail="spin removed" />
             <LegendItem color="var(--accent)" label="The difference" area detail="what spin did" />
             <span className="ml-auto">
               <ForceScaleKey />

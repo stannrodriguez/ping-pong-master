@@ -102,7 +102,7 @@ export const SHOTS: ShotPreset[] = [
     name: 'Block',
     summary: 'A passive return that redirects an incoming loop with the racket angle.',
     mechanism:
-      'Little added spin and little added speed. Its value is timing, not physics — which is exactly why it looks so plain next to the others here.',
+      'This preset adds little spin and speed, so its path stays close to the no-spin reference. A block relies on the incoming pace and the racket angle rather than a large swing.',
     speed: 9,
     elevation: 6,
     heading: 0,
@@ -115,7 +115,7 @@ export const SHOTS: ShotPreset[] = [
     name: 'Float serve',
     summary: 'A deceptive no-spin serve that looks like a spin serve.',
     mechanism:
-      'Zero spin means zero Magnus force, so the ball follows a plain parabola and grips normally at the bounce. It is deceptive precisely because nothing happens.',
+      'With no spin there is no Magnus curve. The flight stays close to the dashed reference, and the receiver gets almost no spin reaction off the racket.',
     speed: 4.5,
     elevation: 22,
     heading: 0,

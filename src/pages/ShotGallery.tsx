@@ -203,7 +203,7 @@ export function ShotGallery() {
 
   return (
     <>
-      <PageHeader title="Shot Gallery" question="How do the real strokes compare, measurably?" />
+      <PageHeader title="Shot Gallery" question="How do familiar strokes differ in speed, spin and bounce?" />
 
       <div className="flex flex-col gap-4 p-4">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -240,7 +240,7 @@ export function ShotGallery() {
 
         <Panel
           title="Measured outcomes"
-          subtitle="Every number here is produced by running the shot through the simulator. Click a heading to sort."
+          subtitle="Click a column heading to compare the shots by that measurement."
         >
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-[length:var(--text-sm)]">
@@ -293,10 +293,10 @@ export function ShotGallery() {
 
           <div className="mt-4 flex flex-col gap-3">
             <Note>
-              Sort by <strong>S</strong> and then by <strong>Speed</strong>. They run in
-              roughly opposite orders — the heaviest-spun shots in the sport are the slow
-              ones, because S is a ratio and slowing the ball raises it just as effectively
-              as brushing harder.
+              Sort by <strong>S</strong>, then by <strong>Speed</strong>. In these presets,
+              the high-ratio shots are mostly the slower ones. S compares the ball's surface
+              speed with its travel speed, so slowing the shot raises S even when rev/s stays
+              fixed.
             </Note>
             <Note>
               The <strong>Bounce</strong> column is the only positive number in the table

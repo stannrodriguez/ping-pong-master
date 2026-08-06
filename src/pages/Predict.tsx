@@ -79,7 +79,7 @@ function identifyPath(): Question {
         ? 'Topspin puts the Magnus force straight down, so its path is the one that peaks earliest and falls hardest — it is always the shortest of the three.'
         : target === 1
           ? 'With no spin there is no Magnus force at all, so this path is a plain drag-damped parabola. It always sits between the other two.'
-          : 'Backspin puts the Magnus force up, so this is the path that hangs and carries furthest. At high enough spin it never comes down at all.',
+          : 'Backspin puts the Magnus force up, so this is the path that hangs and carries furthest. Heavy backspin can keep the ball airborne beyond the table.',
     paths,
     highlight: targetLabel,
   };
@@ -160,12 +160,14 @@ function bounceOutcome(): Question {
     options,
     correct: options.indexOf(outcome),
     explanation:
-      `The contact patch was moving at ${patch.toFixed(1)} m/s against a grip limit of ${gripThreshold(velocity.y).toFixed(1)} m/s, so the ball ${
-        result.regime === 'grip' ? 'gripped' : 'slid'
-      }. Horizontal speed went ${before.toFixed(1)} → ${after.toFixed(1)} m/s and the spin went ${spin.toFixed(0)} → ${componentsFromSpin(velocity, result.spin).topspin.toFixed(0)} rev/s. ` +
-      (outcome === 'Leaves faster than it arrived'
-        ? 'r·ω was larger than v, so the patch was moving backwards under the ball and friction pushed it forwards.'
-        : 'Friction acted against the direction of travel, because the patch was moving forwards.'),
+      (reversed
+        ? 'The bottom of the ball was sliding forwards, so friction pushed backwards hard enough to reverse the ball. '
+        : outcome === 'Leaves faster than it arrived'
+          ? 'The bottom of the ball was sliding backwards, so friction pushed the ball forwards. '
+          : 'The bottom of the ball was sliding forwards, so friction pushed against the direction of travel. ') +
+      `The slip speed was ${patch.toFixed(1)} m/s and the table's stopping limit was ${gripThreshold(velocity.y).toFixed(1)} m/s, so the ball ${
+        result.regime === 'grip' ? 'gripped' : 'skidded'
+      }. Horizontal speed went ${before.toFixed(1)} → ${after.toFixed(1)} m/s; spin went ${spin.toFixed(0)} → ${componentsFromSpin(velocity, result.spin).topspin.toFixed(0)} rev/s.`,
   };
 }
 
@@ -266,6 +268,11 @@ export function Predict() {
 
   const revealed = answer !== null;
   const correct = answer === question.correct;
+  const correctChoice = question.options[question.correct];
+  const chosenChoice = answer == null ? '' : question.options[answer];
+  const correctDescription = question.highlight
+    ? `${correctChoice} is ${question.highlight.toLowerCase()}`
+    : correctChoice;
 
   return (
     <>
@@ -330,8 +337,13 @@ export function Predict() {
           {revealed && (
             <div className="mt-4 flex flex-col gap-3 fade-in">
               <Chip tone={correct ? 'good' : 'bad'}>
-                {correct ? 'Correct' : 'Not this time'}
+                {correct ? 'Correct' : 'Incorrect'}
               </Chip>
+              <p className="text-[length:var(--text-sm)] font-medium text-[var(--ink-primary)]">
+                {correct
+                  ? `${correctDescription}.`
+                  : `${correctDescription}. You chose ${chosenChoice}.`}
+              </p>
               <Note>{question.explanation}</Note>
               <button
                 onClick={next}
@@ -343,13 +355,17 @@ export function Predict() {
           )}
         </Panel>
 
-        <Panel title="How this works">
-          <Note>
-            Every question here is generated from randomised parameters and answered by
-            running the simulator, not from a written-down answer key. The correct answer is
-            whatever the physics actually does — which means this page cannot drift out of
-            agreement with the rest of the app, and cannot be beaten by memorising it.
-          </Note>
+        <Panel title="Clues to watch">
+          <div className="flex flex-col gap-3">
+            <Note>
+              In flight, topspin drops sooner, backspin hangs longer, and no spin sits between
+              them when the launch is otherwise identical.
+            </Note>
+            <Note>
+              At the bounce, look at the bottom of the ball: topspin can make friction push it
+              forwards, while heavy backspin can slow it enough to reverse direction.
+            </Note>
+          </div>
         </Panel>
       </div>
     </>
