@@ -170,7 +170,7 @@ function FlowField({ spinRatioValue, topspin }: { spinRatioValue: number; topspi
         )}
 
         <text x={16} y={height - 10} className="viz-label">
-          ← air flow (the ball is travelling →)
+          ← airflow (the ball is travelling →)
         </text>
       </svg>
     </div>
@@ -327,9 +327,10 @@ export function MagnusExplorer() {
               <Slider label="Spin rate" value={rate} min={0} max={160} step={1} unit="rev/s" onChange={setRate} />
               <Slider label="Ball speed" value={speed} min={2} max={25} step={0.5} unit="m/s" onChange={setSpeed} format={(v) => v.toFixed(1)} />
               <label className="flex items-center justify-between text-[length:var(--text-sm)] text-[var(--ink-secondary)]">
-                Direction
+                Spin direction
                 <button
                   onClick={() => setTopspin((t) => !t)}
+                  title="Switch between topspin and backspin"
                   className="cursor-pointer rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface-2)] px-3 py-1.5 text-[var(--ink-primary)]"
                 >
                   {topspin ? 'Topspin' : 'Backspin'}
@@ -340,8 +341,8 @@ export function MagnusExplorer() {
 
           <Panel title="Spin compared with speed">
             <div className="grid grid-cols-2 gap-4">
-              <Readout label="Ratio" value={S.toFixed(2)} tone="accent" note="S = r·ω / v" />
-              <Readout label="Ball surface" value={surfaceSpeed.toFixed(1)} unit="m/s" note="r·ω" />
+              <Readout label="Spin ratio" value={S.toFixed(2)} tone="accent" note="S = r·ω / v" />
+              <Readout label="Surface speed" value={surfaceSpeed.toFixed(1)} unit="m/s" note="r·ω" />
               <Readout label="Magnus force" value={inWeights(force).toFixed(2)} unit="g" tone="accent" />
             </div>
             <div className="mt-3">
@@ -409,10 +410,10 @@ export function MagnusExplorer() {
                 <Chip tone="accent">S = {S.toFixed(2)}</Chip>
                 <Chip>
                   {S < 0.3
-                    ? 'Low ratio — spin has little effect'
+                    ? 'Low ratio: spin has little effect'
                     : S < 1
-                      ? 'Steep part — more spin still matters'
-                      : 'Flat part — more spin adds little lift'}
+                      ? 'Steep region: more spin still adds lift'
+                      : 'Flat region: more spin adds little lift'}
                 </Chip>
               </div>
               <div className="mt-3">

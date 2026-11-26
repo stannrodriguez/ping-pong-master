@@ -336,7 +336,7 @@ export function BounceLab() {
         <div className="lg:col-span-2">
           <Panel title="What this bounce does">
             <Note>
-              The ball {result.regime === 'grip' ? 'grips the table' : 'skids across the table'}.
+              The ball {result.regime === 'grip' ? 'grips the table' : 'slides across the table'}.
               Friction{' '}
               {result.velocity.z > 0
                 ? 'reverses its direction'
@@ -371,7 +371,7 @@ export function BounceLab() {
           <Panel title="Does it grip or slide?">
             <div className="flex flex-col gap-3">
               <Chip tone={result.regime === 'grip' ? 'good' : 'warn'}>
-                {result.regime === 'grip' ? 'GRIP — the table stops the slip' : 'SKID — the ball keeps sliding'}
+                {result.regime === 'grip' ? 'Grip: the table stops the slip' : 'Slide: the ball keeps sliding'}
               </Chip>
 
               <div className="grid grid-cols-2 gap-4">
@@ -381,15 +381,15 @@ export function BounceLab() {
 
               <Note>
                 Compare the two speeds. If the slip is below the limit, friction stops it and
-                the ball grips. Above the limit, the ball keeps skidding through contact.
+                the ball grips. Above the limit, the ball keeps sliding through contact.
               </Note>
             </div>
           </Panel>
 
           <Panel title="Model details">
             <div className="grid grid-cols-2 gap-4">
-              <Readout label="Restitution" value={CONTACT.restitution.toFixed(2)} note="e — normal bounce" />
-              <Readout label="Friction" value={CONTACT.friction.toFixed(2)} note="mu — ball on table" />
+              <Readout label="Restitution" value={CONTACT.restitution.toFixed(2)} note="e: normal bounce" />
+              <Readout label="Friction" value={CONTACT.friction.toFixed(2)} note="mu: ball on table" />
             </div>
           </Panel>
         </div>
@@ -441,7 +441,7 @@ export function BounceLab() {
               <Note>{explainBounce(result)}</Note>
               {speedAfter > speedBefore && (
                 <Chip tone="good">
-                  The ball left the table faster than it arrived — r·ω exceeded v, so the patch
+                  The ball left the table faster than it arrived: r·ω exceeded v, so the contact patch
                   was moving backwards and friction pushed the ball forwards. This is the kick.
                 </Chip>
               )}
@@ -470,12 +470,12 @@ export function BounceLab() {
             <div className="flex flex-col gap-3">
               <Note>
                 Start at −160 rev/s of backspin and move the spin slider to the right. The
-                shaded band marks the spins that grip instead of skid. Watch each graph
+                shaded band marks the spins that grip instead of slide. Watch each graph
                 change slope at its edge.
               </Note>
               <Note>
                 On the exit-speed graph, heavy backspin makes a flat section. Once the ball
-                is skidding, extra backspin cannot make friction any stronger. The exit spin
+                is sliding, extra backspin cannot make friction any stronger. The exit spin
                 still changes, which is why the middle graph keeps moving.
               </Note>
             </div>
