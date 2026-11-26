@@ -48,7 +48,7 @@ export const SHOTS: ShotPreset[] = [
   {
     id: 'counter',
     name: 'Counter-hit',
-    summary: 'A flatter, faster drive with moderate topspin — the rally workhorse.',
+    summary: 'A flatter, faster drive with moderate topspin for steady rallies.',
     mechanism:
       'Less spin means a smaller Magnus force, so the shot has to be launched flatter to stay on the table. Faster, but a much smaller margin over the net.',
     speed: 15,
@@ -63,7 +63,7 @@ export const SHOTS: ShotPreset[] = [
     name: 'Smash',
     summary: 'Maximum speed, almost no spin, hit downward from a high ball.',
     mechanism:
-      'With no spin there is no Magnus force at all — only gravity and drag. The ball flies a near-parabola, so the downward angle has to do all the work of keeping it on the table.',
+      'With almost no spin, the Magnus force is minimal and gravity and drag dominate. The ball flies a near-parabola, so the downward angle does the work of keeping it on the table.',
     speed: 22,
     elevation: -9,
     heading: 0,
@@ -76,7 +76,7 @@ export const SHOTS: ShotPreset[] = [
     name: 'Backspin chop',
     summary: 'A defensive stroke: heavy backspin, played from well behind the table.',
     mechanism:
-      'The Magnus force points up, so the ball floats and hangs. At the bounce the contact patch is racing forwards, friction saturates, and most of the backspin is scrubbed off — the ball leaves the table with far less spin than it arrived with.',
+      'The Magnus force points up, so the ball floats and hangs. At the bounce, the contact patch moves fast forwards, friction saturates, and most of the backspin is scrubbed off: the ball leaves the table with far less spin than it arrived with.',
     speed: 8,
     elevation: 4,
     heading: 0,
@@ -128,7 +128,7 @@ export const SHOTS: ShotPreset[] = [
     name: 'Pendulum sidespin serve',
     summary: 'A serve with the spin axis raked over toward vertical, curving in flight.',
     mechanism:
-      'Two different parts of the axis do two different jobs. The vertical part puts the Magnus force in the horizontal plane, curving the ball in flight. The part raked toward the direction of travel does nothing in the air but supplies the whole sideways kick off the bounce — a purely vertical axis would bounce dead straight.',
+      'Two different parts of the axis do two different jobs. The vertical part puts the Magnus force in the horizontal plane, curving the ball in flight. The part raked toward the direction of travel does nothing in the air but supplies the whole sideways kick off the bounce (a purely vertical axis bounces straight).',
     speed: 4.5,
     elevation: 21,
     heading: -4,

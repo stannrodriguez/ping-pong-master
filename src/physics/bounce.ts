@@ -186,10 +186,10 @@ export function explainBounce(result: BounceResult): string {
 
   if (result.regime === 'grip') {
     return delta > 0.05
-      ? 'Gripped. The contact patch was moving backwards under the ball, so friction pushed the ball forwards — it left the table faster than it arrived.'
+      ? 'Gripped. The contact patch was moving backwards under the ball, so friction pushed it forwards, and it left the table faster than it arrived.'
       : 'Gripped. The contact patch was nearly at rest, so friction had little to act on and the ball kept almost all of its horizontal speed.';
   }
   return delta < -0.05
-    ? 'Slid. The contact patch was racing forwards, so friction ran at its limit against the direction of travel and stripped horizontal speed off the ball.'
+    ? 'Slid. The contact patch was moving fast forwards, so friction hit its limit against the direction of travel and reduced horizontal speed.'
     : 'Slid. Friction saturated at μ·J_n and could not bring the contact patch to rest within the contact.';
 }
