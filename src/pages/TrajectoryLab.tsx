@@ -122,7 +122,16 @@ function TrajectoryView({
       */}
       <div ref={ref} className={plane === 'side' ? 'aspect-[22/5] w-full' : 'aspect-[16/9] w-full max-w-[620px]'}>
         {width > 0 && (
-          <svg width={width} height={height}>
+          <svg
+            width={width}
+            height={height}
+            role="img"
+            aria-label={
+              plane === 'side'
+                ? 'Side elevation of the spinning shot compared with no spin'
+                : 'Plan view of the spinning shot compared with no spin'
+            }
+          >
             <defs>
               <clipPath id={clipId}>
                 <rect x="0" y="0" width={width} height={height} />
@@ -270,7 +279,7 @@ export function TrajectoryLab() {
                 : `At launch, ${describeSpin(launch.velocity, launch.spin).toLowerCase()} pushes the ball ${magnusDirection} with ${magnusWeight.toFixed(2)} times its own weight.`}{' '}
               {shift
                 ? `That moves the landing point ${formatLength(Math.abs(shift.along))} ${shift.along > 0 ? 'shorter' : 'longer'} than the no-spin shot.`
-                : 'The no-spin comparison does not reach the table.'}
+                : 'One of the two shots does not descend to table height, so landing points cannot be compared.'}
             </Note>
           </Panel>
         </div>
@@ -315,7 +324,7 @@ export function TrajectoryLab() {
 
           <Panel title="Forces at this moment">
             <div className="grid grid-cols-2 gap-4">
-              <Readout label="Spin / speed" value={S.toFixed(2)} tone="accent" note="S = r·ω / v" />
+              <Readout label="Spin ratio" value={S.toFixed(2)} tone="accent" note="S = r·ω / v" />
               <Readout label="Magnus" value={inWeights(forces.magnus).toFixed(2)} unit="g" />
               <Readout label="Drag" value={inWeights(forces.drag).toFixed(2)} unit="g" />
               <Readout label="Speed" value={Math.hypot(head.velocity.x, head.velocity.y, head.velocity.z).toFixed(1)} unit="m/s" />
@@ -336,7 +345,7 @@ export function TrajectoryLab() {
             plain={plain}
             t={t}
             label="Side elevation"
-            caption="metres · where dip and float live"
+            caption="metres · vertical dip and float"
           />
           {/*
             The plan view only earns its space when there is something lateral to
@@ -350,14 +359,14 @@ export function TrajectoryLab() {
               plain={plain}
               t={t}
               label="Plan view"
-              caption="metres · where curve lives"
+              caption="metres · sideways curve"
             />
           ) : (
             <div className="rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--surface-1)] px-4 py-3">
               <Note>
                 This axis creates no sideways force, so the plan view would be a straight
-                line. Move <strong>Axis rake</strong> above 0° to add sidespin and reveal
-                the plan view.
+                line. Set <strong>Axis rake</strong> between 0° and 180° (with spin above
+                0 rev/s) to add sidespin and show the plan view.
               </Note>
             </div>
           )}
@@ -375,14 +384,14 @@ export function TrajectoryLab() {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <Readout
                 label="Net clearance"
-                value={spun.netClearance == null ? '—' : formatLength(spun.netClearance)}
+                value={spun.netClearance == null ? 'N/A' : formatLength(spun.netClearance)}
                 tone={spun.netClearance == null ? 'default' : spun.netClearance > 0 ? 'good' : 'bad'}
               />
-              <Readout label="Apex" value={formatLength(spun.apex)} note="above the surface" />
+              <Readout label="Apex" value={formatLength(spun.apex)} note="above the table" />
               <Readout label="Flight time" value={spun.duration.toFixed(3)} unit="s" />
               <Readout
                 label="Result"
-                value={spun.isLegal ? 'On the table' : spun.events.some((e) => e.kind === 'net') ? 'Into the net' : 'Long'}
+                value={spun.isLegal ? 'On the table' : spun.events.some((e) => e.kind === 'net') ? 'Into the net' : 'Off the table'}
                 tone={spun.isLegal ? 'good' : 'bad'}
               />
             </div>
@@ -393,7 +402,7 @@ export function TrajectoryLab() {
                   ? `Spin moved the landing point ${formatLength(Math.abs(shift.along))} ${
                       shift.along > 0 ? 'shorter' : 'longer'
                     }`
-                  : 'The no-spin version never reaches the table'}
+                  : 'No landing comparison (one shot never descends to table height)'}
               </Chip>
               {shift && Math.abs(shift.across) > 0.02 && (
                 <Chip tone="accent">
