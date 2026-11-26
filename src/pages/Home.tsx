@@ -73,7 +73,7 @@ function HeroChart() {
     // uniform-scale projection has little slack left over to centre away.
     <div ref={ref} className="h-[210px] w-full sm:h-[280px]">
       {width > 0 && (
-        <svg width={width} height={height} role="img" aria-label="Three shots launched identically, differing only in spin">
+        <svg width={width} height={height} role="img" aria-label="Three shots with identical launch speed and angle, comparing topspin, no spin, and backspin">
           <defs>
             {/* Paths that leave the frame have left the table — let them go. */}
             <clipPath id="hero-clip">
@@ -137,8 +137,8 @@ export function Home() {
         </h1>
         <p className="mt-4 max-w-xl text-[length:var(--text-base)] leading-relaxed text-[var(--ink-secondary)]">
           In the air, spin creates a Magnus force that curves the ball. At the table,
-          friction changes its speed, spin and direction. Use the controls to see both
-          effects against the same shot with its spin removed.
+          friction changes its speed, spin and direction. Each view compares a spinning
+          shot against the same shot with no spin.
         </p>
       </div>
 
@@ -161,10 +161,10 @@ export function Home() {
       </div>
 
       <p className="mt-6 max-w-2xl text-[length:var(--text-base)] leading-relaxed text-[var(--ink-secondary)] fade-in">
-        Remove the topspin from that first shot and change nothing else. It lands{' '}
+        Remove the topspin from the topspin shot and change nothing else. It lands{' '}
         <strong className="tnum text-[var(--ink-primary)]">{overshoot.toFixed(2)} m</strong> further
-        down — past the end of the table. Topspin adds the downward force that pulls the
-        original shot back onto the table.
+        down, past the end of the table. Topspin adds the downward force that pulls it
+        back onto the table.
       </p>
 
       <div className="mt-10 fade-in">
@@ -177,7 +177,7 @@ export function Home() {
         </p>
       </div>
 
-      <nav className="mt-4 grid gap-3 sm:grid-cols-2 fade-in">
+      <nav aria-label="Learning sequence" className="mt-4 grid gap-3 sm:grid-cols-2 fade-in">
         {SECTIONS.map((section, index) => (
           <Link
             key={section.to}

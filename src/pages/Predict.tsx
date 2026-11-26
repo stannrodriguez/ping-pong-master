@@ -76,7 +76,7 @@ function identifyPath(): Question {
     correct: paths.findIndex((p) => p.label === targetLabel),
     explanation:
       target === 0
-        ? 'Topspin puts the Magnus force straight down, so its path is the one that peaks earliest and falls hardest — it is always the shortest of the three.'
+        ? 'Topspin puts the Magnus force straight down, so its path peaks earliest and drops fastest: it is always the shortest of the three.'
         : target === 1
           ? 'With no spin there is no Magnus force at all, so this path is a plain drag-damped parabola. It always sits between the other two.'
           : 'Backspin puts the Magnus force up, so this is the path that hangs and carries furthest. Heavy backspin can keep the ball airborne beyond the table.',
@@ -103,7 +103,7 @@ function willItLand(): Question {
   const options = ['Lands on the table', 'Hits the net', 'Flies long'];
 
   const spinNote = result.isLegal && !plain.isLegal
-    ? ' Without its spin, the identical shot does not stay on — the Magnus force is doing all the work here.'
+    ? ' Without its spin, the identical shot misses the table: the Magnus force is what keeps it in.'
     : !result.isLegal && plain.isLegal
       ? ' The same shot with no spin would have landed. The spin is what took it off the table.'
       : '';
@@ -115,7 +115,7 @@ function willItLand(): Question {
     correct: options.indexOf(outcome),
     explanation:
       `It ${outcome.toLowerCase()}. Net clearance ${
-        result.netClearance == null ? 'n/a' : `${(result.netClearance * 100).toFixed(0)} cm`
+        result.netClearance == null ? 'N/A' : `${(result.netClearance * 100).toFixed(0)} cm`
       }, apex ${(result.apex * 100).toFixed(0)} cm.` + spinNote,
     paths: [
       { trajectory: result, label: 'This shot', color: 'var(--accent)' },
@@ -166,7 +166,7 @@ function bounceOutcome(): Question {
           ? 'The bottom of the ball was sliding backwards, so friction pushed the ball forwards. '
           : 'The bottom of the ball was sliding forwards, so friction pushed against the direction of travel. ') +
       `The slip speed was ${patch.toFixed(1)} m/s and the table's stopping limit was ${gripThreshold(velocity.y).toFixed(1)} m/s, so the ball ${
-        result.regime === 'grip' ? 'gripped' : 'skidded'
+        result.regime === 'grip' ? 'gripped' : 'slid'
       }. Horizontal speed went ${before.toFixed(1)} → ${after.toFixed(1)} m/s; spin went ${spin.toFixed(0)} → ${componentsFromSpin(velocity, result.spin).topspin.toFixed(0)} rev/s.`,
   };
 }
@@ -279,13 +279,13 @@ export function Predict() {
       <PageHeader title="Predict It" question="Can you predict what the physics will do?">
         <div className="flex items-center gap-3">
           <span className="tnum text-[length:var(--text-sm)] text-[var(--ink-secondary)]">
-            {score.right} / {score.total}
+            {score.right} / {score.total} correct
           </span>
           <button
             onClick={next}
             className="cursor-pointer rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface-2)] px-3 py-1.5 text-[length:var(--text-sm)] text-[var(--ink-primary)]"
           >
-            {revealed ? 'Next question' : 'Skip'}
+            {revealed ? 'Next question' : 'Skip question'}
           </button>
         </div>
       </PageHeader>

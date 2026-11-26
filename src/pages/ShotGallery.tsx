@@ -186,19 +186,19 @@ export function ShotGallery() {
 
   const columns: Array<{ key: SortKey; label: string; render: (row: Row) => string; title: string }> = [
     { key: 'name', label: 'Shot', title: 'Stroke name', render: (r) => r.shot.name },
-    { key: 'speed', label: 'Speed', title: 'Launch speed, m/s', render: (r) => `${r.shot.speed.toFixed(1)}` },
-    { key: 'spin', label: 'Spin', title: 'Topspin at launch, rev/s (negative is backspin)', render: (r) => r.spinRps.toFixed(0) },
+    { key: 'speed', label: 'Speed', title: 'Launch speed, m/s', render: (r) => `${r.shot.speed.toFixed(1)} m/s` },
+    { key: 'spin', label: 'Spin', title: 'Topspin at launch, rev/s (negative is backspin)', render: (r) => `${r.spinRps.toFixed(0)} rev/s` },
     { key: 'S', label: 'S', title: 'Spin ratio r·ω/v at launch', render: (r) => r.S.toFixed(2) },
-    { key: 'net', label: 'Net', title: 'Clearance over the net', render: (r) => (r.netClearance == null ? '—' : `${(r.netClearance * 100).toFixed(0)} cm`) },
-    { key: 'apex', label: 'Apex', title: 'Highest point above the surface', render: (r) => `${(r.apex * 100).toFixed(0)} cm` },
-    { key: 'time', label: 'Time', title: 'Flight time to the far bounce, s', render: (r) => r.duration.toFixed(2) },
+    { key: 'net', label: 'Net', title: 'Clearance over the net', render: (r) => (r.netClearance == null ? 'N/A' : `${(r.netClearance * 100).toFixed(0)} cm`) },
+    { key: 'apex', label: 'Apex', title: 'Highest point above the table', render: (r) => `${(r.apex * 100).toFixed(0)} cm` },
+    { key: 'time', label: 'Time', title: 'Flight time to the far bounce, s', render: (r) => `${r.duration.toFixed(2)} s` },
     { key: 'shift', label: 'Spin moved it', title: 'How far the touchdown point moved compared with the same shot with no spin', render: (r) =>
       // Spelled out rather than signed: +z is toward the net, so a positive shift
       // means the ball landed *shorter*, and a bare "+43 cm" reads as the opposite.
       r.shiftAlong == null
-        ? 'never lands'
+        ? 'No comparison'
         : `${formatLength(Math.abs(r.shiftAlong))} ${r.shiftAlong > 0 ? 'shorter' : 'longer'}` },
-    { key: 'kick', label: 'Bounce', title: 'Change in horizontal speed across the bounce', render: (r) => (r.kick == null ? '—' : `${r.kick > 0 ? '+' : ''}${r.kick.toFixed(1)} m/s`) },
+    { key: 'kick', label: 'Bounce', title: 'Change in horizontal speed across the bounce', render: (r) => (r.kick == null ? 'N/A' : `${r.kick > 0 ? '+' : ''}${r.kick.toFixed(1)} m/s`) },
   ];
 
   return (
@@ -299,9 +299,9 @@ export function ShotGallery() {
               fixed.
             </Note>
             <Note>
-              The <strong>Bounce</strong> column is the only positive number in the table
-              for the loop. It is the only shot here whose contact patch is moving backwards
-              on impact, so it is the only one friction pushes forwards.
+              In the <strong>Bounce</strong> column, only the topspin loop has a positive
+              number. It is the only shot here whose contact patch is moving backwards on
+              impact, so it is the only one friction pushes forwards.
             </Note>
           </div>
         </Panel>

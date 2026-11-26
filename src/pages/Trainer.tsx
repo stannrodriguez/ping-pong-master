@@ -52,7 +52,7 @@ const KEY_HINTS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 /** Cell-sized outcome words; the HUD and explanation carry the full sentence. */
 const OUTCOME_SHORT: Record<ReturnResult['outcome'], string> = {
-  landed: 'On',
+  landed: 'Safe',
   popped: 'Popped up',
   net: 'Net',
   long: 'Long',
@@ -218,11 +218,11 @@ export function Trainer() {
       case 'flight':
         if (choice) return `Locked: ${describeChoice(choice)}`;
         if (timing === 'match') {
-          return deadlinePassed ? 'Too late — it already bounced' : 'Commit before the bounce';
+          return deadlinePassed ? 'Too late: it already bounced' : 'Commit before the bounce';
         }
-        return 'Read the ball — pick your return';
+        return 'Read the ball, then pick your return';
       case 'hold':
-        return 'Ball on you. Pick your return.';
+        return 'Ball has arrived. Pick your return.';
       case 'return':
         return choice ? describeChoice(choice) : '';
       case 'done':
@@ -247,7 +247,7 @@ export function Trainer() {
         <div className="flex items-center gap-3">
           {streak > 1 && <Chip tone="accent">{streak} in a row</Chip>}
           <span className="tnum text-[length:var(--text-sm)] text-[var(--ink-secondary)]">
-            {totals.right} / {totals.total}
+            {totals.right} / {totals.total} safe
           </span>
           {phase === 'done' && (
             <button
@@ -337,7 +337,7 @@ export function Trainer() {
             </div>
             {grid == null && (
               <p className="mt-2.5 text-[length:var(--text-xs)] text-[var(--ink-muted)]">
-                Keys 1–9. Hover previews the racket face in the scene.
+                Keys 1 to 9. Hover a cell to preview the racket face in the scene.
               </p>
             )}
           </Panel>
@@ -350,7 +350,7 @@ export function Trainer() {
                 <div className="grid grid-cols-2 gap-3">
                   <Readout
                     label="Safe returns"
-                    value={totals.total === 0 ? '—' : `${totals.right}/${totals.total}`}
+                    value={totals.total === 0 ? '0/0' : `${totals.right}/${totals.total}`}
                   />
                   <Readout label="Streak" value={streak} />
                 </div>
@@ -367,7 +367,7 @@ export function Trainer() {
             <div className="flex flex-col gap-3">
               <label className="flex items-center justify-between gap-3">
                 <span className="text-[length:var(--text-sm)] text-[var(--ink-secondary)]">
-                  Ball speed
+                  Playback speed
                 </span>
                 <Segmented
                   label="Playback speed"
@@ -500,6 +500,7 @@ function StrokeRow({
         return (
           <button
             key={aim.id}
+            aria-label={`${stroke.name}, ${aim.name.toLowerCase()}`}
             onClick={() => onPick(cell)}
             onMouseEnter={() => onHover(cell)}
             onMouseLeave={onLeave}
@@ -548,7 +549,7 @@ function FamilyBars({ record }: { record: FamilyRecord }) {
                   {family.name}
                 </span>
                 <span className="tnum text-[length:var(--text-xs)] text-[var(--ink-muted)]">
-                  {r.total === 0 ? '—' : `${r.right}/${r.total}`}
+                  {r.total === 0 ? '0/0' : `${r.right}/${r.total}`}
                 </span>
               </div>
               <div className="mt-0.5 h-1 overflow-hidden rounded-full bg-[var(--surface-3)]">
@@ -627,8 +628,8 @@ function ServeReveal({
         </div>
         {late ? (
           <Note>
-            No stroke was played. The dashed line in the scene is this serve with its spin
-            deleted — the gap between the two paths is what you had to read.
+            No stroke was played. The dashed line in the scene shows this serve with its spin
+            removed. The gap between the two paths is what you had to read.
           </Note>
         ) : (
           returnResult && <Note>{explainReturn(rep.contact, returnResult)}</Note>
