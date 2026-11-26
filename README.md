@@ -1,4 +1,4 @@
-# SPIN — the physics of table tennis
+# SPIN: The Physics of Table Tennis
 
 **[Try it live →](https://stannrodriguez.github.io/ping-pong-master/)**
 
@@ -26,8 +26,8 @@ npm test        # physics engine tests
 
 ## How it works
 
-**One engine, no special cases.** `src/physics/` is SI throughout — metres, m/s, rad/s,
-newtons — with ITTF constants (40 mm / 2.7 g ball, 2.74 m table, 15.25 cm net). Nothing in
+**One engine, no special cases.** `src/physics/` uses SI units throughout (metres, m/s, rad/s,
+newtons) with ITTF constants (40 mm / 2.7 g ball, 2.74 m table, 15.25 cm net). Nothing in
 it branches on a "spin type". Topspin, backspin and sidespin are one Magnus term with three
 different axes:
 
@@ -36,7 +36,7 @@ F_magnus = ½ρA·C_L(S)·|v|²·normalise(ω × v)
 ```
 
 **The bounce is derived, not tabulated.** Friction acts on the *contact-point velocity*
-`u = v + ω × (-rŷ)` — the velocity of the patch of ball actually touching the table, which
+`u = v + ω × (-rŷ)`: the velocity of the patch of ball actually touching the table, which
 differs from the ball's own velocity whenever it is spinning. Grip and slip fall out of
 comparing the impulse gripping would need against the `μ·J_n` the surface can supply.
 Every phenomenon a player knows comes out of that one rule.
@@ -45,7 +45,7 @@ Every phenomenon a player knows comes out of that one rule.
 first person: read a randomised serve, commit to a stroke and an aim before the ball
 arrives, and the engine plays your actual return. The racket contact is the bounce
 model generalised to a tilted, moving plane with rubber constants (grippier, softer
-than the table) — so "open the racket against backspin" is graded by simulation, not
+than the table), so "open the racket against backspin" is graded by simulation, not
 by an answer key.
 
 **Every claim is tested.** `src/physics/physics.test.ts` asserts the things the UI says in
@@ -67,7 +67,7 @@ is the whole reason for building it this way.
 - **A purely vertical spin axis produces no sideways kick at all.** The contact point sits
   *on* the axis, so the surface there isn't moving and friction has nothing lateral to bite
   on. Pure sidespin curves in the air and then bounces dead straight. The kick off a real
-  sidespin serve comes from the part of the axis raked toward the direction of travel —
+  sidespin serve comes from the part of the axis raked toward the direction of travel,
   which is exactly the part that produces *no* curve in the air.
 - **Extra backspin doesn't take extra speed off the bounce.** Once friction saturates the
   impulse is capped at `μ·J_n` whatever the slip speed. More backspin changes the outgoing
@@ -96,5 +96,5 @@ Full rationale in [`SPEC.md`](SPEC.md).
 
 ## Stack
 
-React 19 · TypeScript · Vite · Tailwind CSS v4 · Vitest. No backend and no runtime
-dependencies beyond the framework — the physics and the drawing are all local.
+React 19, TypeScript, Vite, Tailwind CSS v4, Three.js (lazy-loaded for `/trainer`), and
+Vitest. No backend: the physics engine and visualisations run locally in the browser.
