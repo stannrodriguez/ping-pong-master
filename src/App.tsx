@@ -44,7 +44,13 @@ export default function App() {
           <Route
             path="/trainer"
             element={
-              <Suspense fallback={null}>
+              <Suspense
+                fallback={
+                  <p role="status" className="p-5 text-[length:var(--text-sm)] text-[var(--ink-muted)]">
+                    Loading Return Trainer...
+                  </p>
+                }
+              >
                 <Trainer />
               </Suspense>
             }
