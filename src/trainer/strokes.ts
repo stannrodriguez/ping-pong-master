@@ -95,12 +95,12 @@ export function racketFor(choice: StrokeChoice): RacketPlane {
 export type ReturnOutcome = 'landed' | 'popped' | 'net' | 'long' | 'wide' | 'own-half';
 
 export const OUTCOME_LABELS: Record<ReturnOutcome, string> = {
-  landed: 'On the table',
-  popped: 'Popped up — smashed',
+  landed: 'Safe return',
+  popped: 'Popped up (too high)',
   net: 'Into the net',
   long: 'Flew long',
   wide: 'Went wide',
-  'own-half': 'Died on your side',
+  'own-half': 'Bounced on your side',
 };
 
 /**
@@ -175,14 +175,14 @@ export function explainReturn(ball: BallState, result: ReturnResult): string {
 
   const ending =
     outcome === 'landed'
-      ? `The return cleared the net and landed ${result.landingDepth ? `${result.landingDepth.toFixed(2)} m` : ''} beyond it.`
+      ? `The return cleared the net and landed ${result.landingDepth ? `${result.landingDepth.toFixed(2)} m ` : ''}beyond it.`
       : outcome === 'net'
-        ? 'The result left the blade too low and went into the net.'
+        ? 'The ball left the blade too low and hit the net.'
         : outcome === 'long'
-          ? 'The result left the blade too fast and high, and carried past the end line.'
+          ? 'The ball left the blade too fast and high, carrying past the end line.'
           : outcome === 'wide'
             ? 'The sideways throw off the rubber carried it past the sideline.'
-            : 'It came off the blade downward and died on your own half.';
+            : 'It came off the blade downward and bounced on your own half.';
 
   return `${bite} ${spinNote} ${ending}`;
 }

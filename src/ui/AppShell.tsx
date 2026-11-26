@@ -15,7 +15,7 @@ export function AppShell() {
           </span>
         </NavLink>
 
-        <nav className="ml-auto flex items-center gap-1 overflow-x-auto">
+        <nav aria-label="Main navigation" className="ml-auto flex items-center gap-1 overflow-x-auto">
           {SECTIONS.map((section) => (
             <NavLink
               key={section.to}

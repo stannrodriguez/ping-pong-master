@@ -58,7 +58,7 @@ export const SERVE_FAMILIES: ServeFamily[] = [
   {
     id: 'side-right',
     name: 'Sidespin, kicking right',
-    read: 'The spin sends your return right off the rubber. Aim left to compensate.',
+    read: 'The spin sends your return right off the rubber. Aim left to compensate; a slow push is more easily carried wide.',
   },
 ];
 
